@@ -1,0 +1,24 @@
+build:
+  maxIssues: 0
+
+naming:
+  PackageNaming:
+    # Keep lowercase package starts while allowing underscores in package segments.
+    packagePattern: '[a-z]+(\.[a-z][A-Za-z0-9_]*)*'
+  FunctionNaming:
+    ignoreAnnotated:
+      - Composable
+
+style:
+  MagicNumber:
+    ignoreEnums: true
+  ReturnCount:
+    active: false
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: false
+
+complexity:
+  CyclomaticComplexMethod:
+    ignoreSimpleWhenEntries: true

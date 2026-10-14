@@ -1,0 +1,105 @@
+plugins {
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kover)
+    alias(libs.plugins.detekt)
+}
+
+detekt {
+    allRules = true
+    config.setFrom(files("detekt.yml"))
+    buildUponDefaultConfig = true
+}
+
+kover {
+    reports {
+        variant("debug") {
+            // Coverage reporting is ready for the critical behavior added later.
+            html {}
+        }
+    }
+}
+
+android {
+    namespace = "sk.lukasvyletel.scratchcard"
+    compileSdk = 37
+
+    lint {
+        warningsAsErrors = true
+    }
+
+    defaultConfig {
+        applicationId = "sk.lukasvyletel.scratchcard"
+        minSdk = 24
+        targetSdk = 37
+        versionCode = 1
+        versionName = "1.0"
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        getByName("release") {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    buildFeatures {
+        buildConfig = true
+        compose = true
+    }
+
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+    }
+}
+
+dependencies {
+    // Android and Jetpack Compose
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.kotlinx.coroutines.android)
+
+    // Generic HTTP and JSON infrastructure
+    implementation(libs.squareup.okhttp)
+    implementation(libs.squareup.okhttp.logging.interceptor)
+    implementation(libs.squareup.retrofit)
+    implementation(libs.squareup.retrofit.converter.kotlinx.serialization)
+    implementation(libs.kotlinx.serialization.json)
+
+    // JVM unit and Compose tests
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
+    testImplementation(libs.androidx.compose.ui.test.junit4)
+    testImplementation(libs.mockk)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.squareup.okhttp.mockwebserver)
+    testImplementation(libs.androidx.navigation.testing)
+
+    // Android integration tests
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.squareup.okhttp.mockwebserver)
+
+    // Supplies the activity used by Compose tests, including Robolectric.
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+}
