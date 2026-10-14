@@ -1,0 +1,9 @@
+<resources>
+    <color name="scratch_cream">#F7F5EF</color>
+    <color name="scratch_ink">#18332E</color>
+    <color name="scratch_muted_ink">#587069</color>
+    <color name="scratch_lime">#D7F46B</color>
+    <color name="scratch_card_dark">#112A25</color>
+    <color name="scratch_card_light">#285047</color>
+    <color name="scratch_soft_green">#E8F0E9</color>
+</resources>

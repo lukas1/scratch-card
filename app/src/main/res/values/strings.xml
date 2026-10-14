@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Scratch Card</string>
+    <string name="scratch_screen_title">Scratch your card</string>
+    <string name="scratch_screen_description">A new code is waiting beneath the surface.</string>
+    <string name="activation_screen_title">Activate your card</string>
+    <string name="activation_screen_description">Your revealed code is the key to activation.</string>
+    <string name="navigate_back">Back</string>
 </resources>
