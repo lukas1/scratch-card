@@ -2,6 +2,7 @@ package sk.lukasvyletel.scratchcard.features.home.view
 
 import android.content.Context
 import android.os.Build
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertTextEquals
@@ -15,8 +16,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import sk.lukasvyletel.scratchcard.ActivationRoute
+import sk.lukasvyletel.scratchcard.HomeRoute
 import sk.lukasvyletel.scratchcard.R
+import sk.lukasvyletel.scratchcard.ScratchRoute
+import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
 import sk.lukasvyletel.scratchcard.features.card.ScratchCardState
+import sk.lukasvyletel.scratchcard.test.MockInjector
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Build.VERSION_CODES.VANILLA_ICE_CREAM])
@@ -26,12 +32,11 @@ class HomeScreenTest {
 
     @Test
     fun `GIVEN an unscratched card THEN the status and hidden code are shown`() {
+        val injector = MockInjector()
         compose.setContent {
-            HomeScreen(
-                cardState = ScratchCardState.Unscratched,
-                onScratchClick = {},
-                onActivationClick = {},
-            )
+            CompositionLocalProvider(LocalInjector provides injector) {
+                HomeScreen(cardState = ScratchCardState.Unscratched)
+            }
         }
 
         val context = ApplicationProvider.getApplicationContext<Context>()
@@ -43,8 +48,11 @@ class HomeScreenTest {
     fun `GIVEN a revealed card WHEN activated THEN the status changes and code stays visible`() {
         val code = "c533829f-cd4a-433d-9886-05f9b613db57"
         val state = mutableStateOf<ScratchCardState>(ScratchCardState.Scratched(code))
+        val injector = MockInjector()
         compose.setContent {
-            HomeScreen(cardState = state.value, onScratchClick = {}, onActivationClick = {})
+            CompositionLocalProvider(LocalInjector provides injector) {
+                HomeScreen(cardState = state.value)
+            }
         }
 
         val context = ApplicationProvider.getApplicationContext<Context>()
@@ -57,14 +65,12 @@ class HomeScreenTest {
     }
 
     @Test
-    fun `GIVEN the main screen WHEN action semantics are invoked THEN navigation callbacks run`() {
-        val selectedActions = mutableListOf<String>()
+    fun `GIVEN the main screen WHEN navigation actions are clicked THEN routes are added to the injected back stack`() {
+        val injector = MockInjector()
         compose.setContent {
-            HomeScreen(
-                cardState = ScratchCardState.Unscratched,
-                onScratchClick = { selectedActions.add("scratch") },
-                onActivationClick = { selectedActions.add("activation") },
-            )
+            CompositionLocalProvider(LocalInjector provides injector) {
+                HomeScreen(cardState = ScratchCardState.Unscratched)
+            }
         }
 
         val scratchAction = compose.onNodeWithTag("scratchButton")
@@ -79,7 +85,7 @@ class HomeScreenTest {
         }
 
         compose.runOnIdle {
-            assertEquals(listOf("scratch", "activation"), selectedActions)
+            assertEquals(listOf(HomeRoute, ScratchRoute, ActivationRoute), injector.globalModule.backStack.toList())
         }
     }
 }

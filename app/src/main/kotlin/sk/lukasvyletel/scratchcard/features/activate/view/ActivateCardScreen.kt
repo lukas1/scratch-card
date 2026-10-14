@@ -5,10 +5,9 @@ import sk.lukasvyletel.scratchcard.R
 import sk.lukasvyletel.scratchcard.shared.ui.DestinationScreen
 
 @Composable
-fun ActivateCardScreen(onBack: () -> Unit) {
+fun ActivateCardScreen() {
     DestinationScreen(
         title = R.string.activation_screen_title,
         description = R.string.activation_screen_description,
-        onBack = onBack,
     )
 }

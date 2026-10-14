@@ -12,15 +12,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
+import sk.lukasvyletel.scratchcard.ActivationRoute
 import sk.lukasvyletel.scratchcard.R
+import sk.lukasvyletel.scratchcard.ScratchRoute
+import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
 import sk.lukasvyletel.scratchcard.features.card.ScratchCardState
 
 @Composable
-fun HomeScreen(
-    cardState: ScratchCardState,
-    onScratchClick: () -> Unit,
-    onActivationClick: () -> Unit
-) {
+fun HomeScreen(cardState: ScratchCardState) {
+    val backStack = LocalInjector.current.globalModule.backStack
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -37,8 +37,8 @@ fun HomeScreen(
         ScratchCardArtwork(cardState)
         Spacer(modifier = Modifier.height(20.dp))
         HomeActionButtons(
-            onScratchClick = onScratchClick,
-            onActivationClick = onActivationClick,
+            onScratchClick = { backStack.add(ScratchRoute) },
+            onActivationClick = { backStack.add(ActivationRoute) },
         )
     }
 }

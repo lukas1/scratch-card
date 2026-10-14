@@ -18,20 +18,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import sk.lukasvyletel.scratchcard.R
+import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
 
 @Composable
-fun DestinationScreen(
-    @StringRes title: Int,
-    @StringRes description: Int,
-    onBack: () -> Unit
-) {
+fun DestinationScreen(@StringRes title: Int, @StringRes description: Int) {
+    val backStack = LocalInjector.current.globalModule.backStack
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(colorResource(R.color.scratch_cream))
             .padding(24.dp),
     ) {
-        TextButton(onClick = onBack) {
+        TextButton(onClick = { backStack.removeLastOrNull() }) {
             Text(text = stringResource(R.string.navigate_back), color = colorResource(R.color.scratch_ink))
         }
         Spacer(modifier = Modifier.height(60.dp))
