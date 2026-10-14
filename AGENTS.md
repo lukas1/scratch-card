@@ -25,11 +25,11 @@ details, or implementation notes to the project.
 - After code changes, run:
 
   ```sh
-  ./gradlew :app:assembleDebug :app:detekt :app:lintDebug :app:test :app:koverHtmlReportDebug
+  ./gradlew :app:assembleDebug :app:detekt :app:lintDebug :app:test :app:koverHtmlReportDebug :app:connectedDebugAndroidTest
   ```
 
-- If instrumented tests have been added, also run
-  `./gradlew :app:connectedDebugAndroidTest` on a device or emulator.
+- Run the instrumented tests on a connected device or emulator for every quality
+  gate, whether or not instrumented tests changed in that code change.
 - AGP 9 enables debug unit tests by default. Release Robolectric tests are not
   enabled: their Compose test activity must be configured separately.
 - Cover critical behavior with unit tests. Prefer deterministic coroutine tests

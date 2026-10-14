@@ -1,5 +1,24 @@
 <resources>
     <string name="app_name">Scratch Card</string>
+    <string name="home_brand_name">SCRATCH CARD</string>
+    <string name="home_title_unscratched">Your moment\nstarts here.</string>
+    <string name="home_title_scratched">Your code\nis ready.</string>
+    <string name="home_title_activated">You\'re all\nset.</string>
+    <string name="home_description_unscratched">One card, one reveal. A little surprise is waiting for you.</string>
+    <string name="home_description_scratched">Your card has been revealed. Keep your code close and activate it when you\'re ready.</string>
+    <string name="home_description_activated">Your card is activated. Your code is right here whenever you need it.</string>
+    <string name="home_card_label">Your card</string>
+    <string name="card_state_unscratched">UNSCRATCHED</string>
+    <string name="card_state_scratched">SCRATCHED</string>
+    <string name="card_state_activated">ACTIVATED</string>
+    <string name="home_card_brand">A LITTLE LUCK</string>
+    <string name="home_card_number">01 / 01</string>
+    <string name="home_card_footer">GOOD THINGS AHEAD</string>
+    <string name="home_code_label">YOUR CODE</string>
+    <string name="home_hidden_code">••••  ••••  ••••</string>
+    <string name="home_next_step">YOUR NEXT STEP</string>
+    <string name="home_scratch_action">Scratch my card</string>
+    <string name="home_activation_action">Activate card</string>
     <string name="scratch_screen_title">Scratch your card</string>
     <string name="scratch_screen_description">A new code is waiting beneath the surface.</string>
     <string name="activation_screen_title">Activate your card</string>
