@@ -73,7 +73,8 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
-    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.navigation3.runtime)
+    implementation(libs.androidx.navigation3.ui)
     implementation(libs.kotlinx.coroutines.android)
 
     // Generic HTTP and JSON infrastructure
@@ -91,7 +92,6 @@ dependencies {
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.squareup.okhttp.mockwebserver)
-    testImplementation(libs.androidx.navigation.testing)
 
     // Android integration tests
     androidTestImplementation(platform(libs.androidx.compose.bom))

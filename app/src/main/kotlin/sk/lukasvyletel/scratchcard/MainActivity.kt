@@ -11,7 +11,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
-import sk.lukasvyletel.scratchcard.features.home.view.HomeScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,7 +22,7 @@ class MainActivity : ComponentActivity() {
                     LocalInjector provides (application as ScratchCardApplication).injector(),
                 ) {
                     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                        HomeScreen(
+                        AppNavigation(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(innerPadding),
