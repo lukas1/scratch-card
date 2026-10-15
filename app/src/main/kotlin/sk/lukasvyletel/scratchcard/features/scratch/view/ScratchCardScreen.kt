@@ -12,7 +12,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,12 +28,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import sk.lukasvyletel.scratchcard.R
 import sk.lukasvyletel.scratchcard.core.annotations.ExcludeFromCoverage
-import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
-import sk.lukasvyletel.scratchcard.core.dependency_injection.PreviewInjector
 import sk.lukasvyletel.scratchcard.shared.ui.DestinationAction
 import sk.lukasvyletel.scratchcard.shared.ui.DestinationScreen
 import sk.lukasvyletel.scratchcard.shared.ui.SectionLabel
 import sk.lukasvyletel.scratchcard.shared.ui.ScratchCardFrame
+import sk.lukasvyletel.scratchcard.features.scratch.view.preview.ScratchCardScreenPreviewContent
 
 @Composable
 fun ScratchCardScreen(
@@ -182,11 +180,4 @@ private fun ScratchCardScreenRevealingPreview() {
 @Composable
 private fun ScratchCardScreenRevealedPreview() {
     ScratchCardScreenPreviewContent(code = "SC-4829-7316")
-}
-
-@Composable
-private fun ScratchCardScreenPreviewContent(code: String? = null, isRevealing: Boolean = false) {
-    CompositionLocalProvider(LocalInjector provides PreviewInjector()) {
-        ScratchCardScreen(code = code, isRevealing = isRevealing)
-    }
 }

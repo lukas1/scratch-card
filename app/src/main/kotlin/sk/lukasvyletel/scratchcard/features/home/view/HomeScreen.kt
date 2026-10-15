@@ -68,9 +68,3 @@ private fun HomeScreenActivatedPreview() {
     HomeScreenPreviewContent(ScratchCardState.Activated("SC-4829-7316"))
 }
 
-@Composable
-private fun HomeScreenPreviewContent(cardState: ScratchCardState) {
-    CompositionLocalProvider(LocalInjector provides PreviewInjector()) {
-        HomeScreen(cardState)
-    }
-}
