@@ -25,8 +25,12 @@ details, or implementation notes to the project.
 - After code changes, run:
 
   ```sh
-  ./gradlew :app:assembleDebug :app:detekt :app:lintDebug :app:test :app:koverHtmlReportDebug :app:connectedDebugAndroidTest
+  ./gradlew qualityGate
   ```
+
+- The root `qualityGate` task runs `:app:assembleDebug`, `:app:detekt`,
+  `:app:lintDebug`, `:app:test`, `:app:koverHtmlReportDebug`, and
+  `:app:connectedDebugAndroidTest`.
 
 - Run the instrumented tests on a connected device or emulator for every quality
   gate, whether or not instrumented tests changed in that code change.

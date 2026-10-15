@@ -10,3 +10,16 @@ plugins {
 tasks.register<Delete>("clean") {
     delete(layout.buildDirectory)
 }
+
+tasks.register("qualityGate") {
+    group = "verification"
+    description = "Runs the app build, static checks, tests, coverage report, and connected Android tests."
+    dependsOn(
+        ":app:assembleDebug",
+        ":app:detekt",
+        ":app:lintDebug",
+        ":app:test",
+        ":app:koverHtmlReportDebug",
+        ":app:connectedDebugAndroidTest",
+    )
+}
