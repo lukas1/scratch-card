@@ -5,9 +5,7 @@ import okhttp3.OkHttpClient
 import sk.lukasvyletel.scratchcard.core.annotations.ExcludeFromCoverage
 import sk.lukasvyletel.scratchcard.core.api.RetrofitClientBuilder
 
-class RealInjector : Injector {
-    override val globalModule: GlobalModule by lazy { GlobalModule() }
-
+class RealInjector : Injector by SharedInjector() {
     private val httpClient: OkHttpClient = RetrofitClientBuilder.buildHttpClient()
     private val json: Json = Json { ignoreUnknownKeys = true }
 

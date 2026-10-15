@@ -25,3 +25,6 @@ exceptions:
 complexity:
   CyclomaticComplexMethod:
     ignoreSimpleWhenEntries: true
+  TooManyFunctions:
+    ignoreAnnotatedFunctions:
+      - Preview
