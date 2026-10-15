@@ -12,6 +12,9 @@ naming:
 style:
   MagicNumber:
     ignoreEnums: true
+  UnusedPrivateMember:
+    ignoreAnnotated:
+      - Preview
   ReturnCount:
     active: false
 
