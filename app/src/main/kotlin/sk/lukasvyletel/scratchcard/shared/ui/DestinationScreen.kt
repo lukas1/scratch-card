@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -29,11 +30,15 @@ fun DestinationScreen(@StringRes title: Int, @StringRes description: Int) {
             .background(colorResource(R.color.scratch_cream))
             .padding(24.dp),
     ) {
-        TextButton(onClick = { navigation.goBack() }) {
+        TextButton(
+            modifier = Modifier.testTag("destinationBackButton"),
+            onClick = { navigation.goBack() },
+        ) {
             Text(text = stringResource(R.string.navigate_back), color = colorResource(R.color.scratch_ink))
         }
         Spacer(modifier = Modifier.height(60.dp))
         Text(
+            modifier = Modifier.testTag("destinationTitle"),
             text = stringResource(title),
             color = colorResource(R.color.scratch_ink),
             fontFamily = FontFamily.Serif,
@@ -43,6 +48,7 @@ fun DestinationScreen(@StringRes title: Int, @StringRes description: Int) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
+            modifier = Modifier.testTag("destinationDescription"),
             text = stringResource(description),
             color = colorResource(R.color.scratch_muted_ink),
             fontSize = 16.sp,
