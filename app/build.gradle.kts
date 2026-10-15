@@ -13,10 +13,33 @@ detekt {
 }
 
 kover {
+    currentProject {
+        createVariant("packageCoverage") {
+            add("debug")
+        }
+    }
     reports {
+        filters {
+            excludes {
+                annotatedBy("sk.lukasvyletel.scratchcard.core.annotations.ExcludeFromCoverage")
+            }
+        }
         variant("debug") {
-            // Coverage reporting is ready for the critical behavior added later.
             html {}
+        }
+        variant("packageCoverage") {
+            filters {
+                includes {
+                    packages("sk.lukasvyletel.scratchcard.features")
+                    packages("sk.lukasvyletel.scratchcard.core")
+                }
+                excludes {
+                    annotatedBy("sk.lukasvyletel.scratchcard.core.annotations.ExcludeFromCoverage")
+                }
+            }
+            verify {
+                rule("Features and core line coverage") { minBound(100) }
+            }
         }
     }
 }

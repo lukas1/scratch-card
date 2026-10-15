@@ -21,6 +21,7 @@ tasks.register("qualityGate") {
         ":app:lintDebug",
         ":app:test",
         ":app:koverHtmlReportDebug",
+        ":app:koverVerifyPackageCoverage",
         ":app:connectedDebugAndroidTest",
     )
 }

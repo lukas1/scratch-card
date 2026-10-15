@@ -8,9 +8,11 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import sk.lukasvyletel.scratchcard.BuildConfig
+import sk.lukasvyletel.scratchcard.core.annotations.ExcludeFromCoverage
 
 private const val REQUEST_TIMEOUT_SECONDS = 30L
 
+@ExcludeFromCoverage
 object RetrofitClientBuilder {
     fun buildHttpClient(): OkHttpClient {
         val interceptor = HttpLoggingInterceptor().apply {
