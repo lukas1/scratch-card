@@ -14,10 +14,15 @@ fun ScratchCardArtwork(cardState: ScratchCardState) {
         ScratchCardCodePanel(
             code = code,
             height = 108.dp,
-            backgroundColor = if (code == null) R.color.scratch_soft_green else R.color.scratch_lime,
+            backgroundColor = cardState.codePanelBackgroundColor(),
             tag = "cardCode",
         )
     }
+}
+
+private fun ScratchCardState.codePanelBackgroundColor(): Int = when (this) {
+    ScratchCardState.Unscratched, is ScratchCardState.Scratched -> R.color.scratch_soft_green
+    is ScratchCardState.Activated -> R.color.scratch_lime
 }
 
 private fun ScratchCardState.code(): String? = when (this) {
