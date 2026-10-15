@@ -8,6 +8,7 @@ plugins {
 }
 
 tasks.register<Delete>("clean") {
+    description = "Cleans build directory"
     delete(layout.buildDirectory)
 }
 
