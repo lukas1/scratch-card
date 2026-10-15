@@ -9,18 +9,26 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import sk.lukasvyletel.scratchcard.ActivationRoute
 import sk.lukasvyletel.scratchcard.R
 import sk.lukasvyletel.scratchcard.ScratchRoute
-import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
-import sk.lukasvyletel.scratchcard.core.dependency_injection.PreviewInjector
 import sk.lukasvyletel.scratchcard.core.annotations.ExcludeFromCoverage
+import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
 import sk.lukasvyletel.scratchcard.features.card.ScratchCardState
+import sk.lukasvyletel.scratchcard.features.home.view.preview.HomeScreenPreviewContent
+
+@Composable
+fun HomeScreen() {
+    val cardState by LocalInjector.current.scratchCardModule.scratchCardRepository.cardStateFlow
+        .collectAsStateWithLifecycle()
+    HomeScreen(cardState)
+}
 
 @Composable
 fun HomeScreen(cardState: ScratchCardState) {
