@@ -30,13 +30,20 @@ class ScratchCardScreenTest {
     @get:Rule
     val compose = createComposeRule()
 
-    @Test
-    fun `GIVEN scratch screen THEN localized title and description are shown`() {
+    private val injector = MockInjector()
+    private val scratchCardRepository = injector.scratchCardModule.scratchCardRepository
+
+    private fun setupView(isRevealing: Boolean = false, onRevealClick: () -> Unit = {}) {
         compose.setContent {
-            CompositionLocalProvider(LocalInjector provides MockInjector()) {
-                ScratchCardScreen()
+            CompositionLocalProvider(LocalInjector provides injector) {
+                ScratchCardScreen(isRevealing = isRevealing, onRevealClick = onRevealClick)
             }
         }
+    }
+
+    @Test
+    fun `GIVEN scratch screen THEN localized title and description are shown`() {
+        setupView()
 
         val context = ApplicationProvider.getApplicationContext<Context>()
         compose.onNodeWithTag("destinationTitle")
@@ -47,13 +54,8 @@ class ScratchCardScreenTest {
 
     @Test
     fun `GIVEN scratch screen WHEN back is clicked THEN scratch route is removed`() {
-        val injector = MockInjector()
         injector.globalModule.navigation.navigateTo(ScratchRoute)
-        compose.setContent {
-            CompositionLocalProvider(LocalInjector provides injector) {
-                ScratchCardScreen()
-            }
-        }
+        setupView()
 
         compose.onNodeWithTag("destinationBackButton").assertHasClickAction().performClick()
 
@@ -65,37 +67,27 @@ class ScratchCardScreenTest {
     @Test
     fun `GIVEN scratch screen WHEN reveal is tapped THEN reveal action is requested`() {
         var requested = false
-        compose.setContent {
-            CompositionLocalProvider(LocalInjector provides MockInjector()) {
-                ScratchCardScreen(onRevealClick = { requested = true })
-            }
-        }
+        setupView(onRevealClick = { requested = true })
 
         compose.onNodeWithTag("scratchFoil").assertIsDisplayed()
         compose.onNodeWithTag("revealButton").performScrollTo().assertHasClickAction().performClick()
         compose.runOnIdle { assertEquals(true, requested) }
+        compose.onNodeWithTag("scratchCode").assertTextEquals(MockInjector.TEST_SCRATCH_CODE)
+        compose.onNodeWithTag("revealButton").assertIsNotEnabled()
     }
 
     @Test
     fun `GIVEN a revealed card THEN its code is shown and reveal is unavailable`() {
-        val code = "123e4567-e89b-12d3-a456-426614174000"
-        compose.setContent {
-            CompositionLocalProvider(LocalInjector provides MockInjector()) {
-                ScratchCardScreen(code = code)
-            }
-        }
+        scratchCardRepository.scratchCard()
+        setupView()
 
-        compose.onNodeWithTag("scratchCode").assertTextEquals(code)
+        compose.onNodeWithTag("scratchCode").assertTextEquals(MockInjector.TEST_SCRATCH_CODE)
         compose.onNodeWithTag("revealButton").assertIsNotEnabled()
     }
 
     @Test
     fun `GIVEN reveal in progress THEN progress is shown and reveal is unavailable`() {
-        compose.setContent {
-            CompositionLocalProvider(LocalInjector provides MockInjector()) {
-                ScratchCardScreen(isRevealing = true)
-            }
-        }
+        setupView(isRevealing = true)
 
         val context = ApplicationProvider.getApplicationContext<Context>()
         compose.onNodeWithTag("scratchCode").assertTextEquals(context.getString(R.string.scratch_revealing_title))

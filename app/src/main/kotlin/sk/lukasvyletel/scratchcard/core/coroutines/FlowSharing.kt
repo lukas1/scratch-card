@@ -1,0 +1,3 @@
+package sk.lukasvyletel.scratchcard.core.coroutines
+
+const val WHILE_SUBSCRIBED_STOP_TIMEOUT_FOR_CONFIGURATION_CHANGES_MILLIS = 5_000L

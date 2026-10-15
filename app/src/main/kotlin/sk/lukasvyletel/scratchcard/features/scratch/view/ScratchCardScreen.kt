@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import sk.lukasvyletel.scratchcard.R
 import sk.lukasvyletel.scratchcard.core.annotations.ExcludeFromCoverage
 import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
@@ -40,13 +42,29 @@ import sk.lukasvyletel.scratchcard.features.scratch.view.preview.ScratchCardScre
 
 @Composable
 fun ScratchCardScreen(
-    code: String? = null,
     isRevealing: Boolean = false,
     onRevealClick: () -> Unit = {},
 ) {
     val scratchCardViewModel: ScratchCardViewModel = viewModel(
         factory = ScratchCardViewModelFactory(LocalInjector.current.scratchCardModule),
     )
+    val code by scratchCardViewModel.code.collectAsStateWithLifecycle()
+    ScratchCardScreenContent(
+        code = code,
+        isRevealing = isRevealing,
+        onRevealClick = {
+            scratchCardViewModel.scratchCard()
+            onRevealClick()
+        },
+    )
+}
+
+@Composable
+fun ScratchCardScreenContent(
+    code: String?,
+    isRevealing: Boolean,
+    onRevealClick: () -> Unit,
+) {
     DestinationScreen(
         title = R.string.scratch_screen_title,
         description = R.string.scratch_screen_description,
@@ -62,10 +80,7 @@ fun ScratchCardScreen(
                 else -> R.string.scratch_reveal_action
             },
             tag = "revealButton",
-            onClick = {
-                scratchCardViewModel.scratchCard()
-                onRevealClick()
-            },
+            onClick = onRevealClick,
             modifier = Modifier.padding(top = 24.dp),
             enabled = code == null && !isRevealing,
         )
