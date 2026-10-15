@@ -6,16 +6,19 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.test.core.app.ApplicationProvider
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
 import sk.lukasvyletel.scratchcard.ActivationRoute
 import sk.lukasvyletel.scratchcard.HomeRoute
 import sk.lukasvyletel.scratchcard.R
@@ -90,5 +93,20 @@ class HomeScreenTest {
                 injector.globalModule.navigation.backStack.toList()
             )
         }
+    }
+
+    @Test
+    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    fun `GIVEN the home screen WHEN the scratch card is captured THEN the card is rendered`() {
+        compose.setContent {
+            CompositionLocalProvider(LocalInjector provides MockInjector()) {
+                HomeScreen(cardState = ScratchCardState.Unscratched)
+            }
+        }
+
+        val image = compose.onNodeWithTag("scratchCard").captureToImage()
+
+        assertTrue(image.width > 0)
+        assertTrue(image.height > 0)
     }
 }
