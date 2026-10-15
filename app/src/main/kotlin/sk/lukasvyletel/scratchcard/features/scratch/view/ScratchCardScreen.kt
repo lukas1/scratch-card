@@ -26,8 +26,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import sk.lukasvyletel.scratchcard.R
 import sk.lukasvyletel.scratchcard.core.annotations.ExcludeFromCoverage
+import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
+import sk.lukasvyletel.scratchcard.features.scratch.viewmodel.ScratchCardViewModel
+import sk.lukasvyletel.scratchcard.features.scratch.viewmodel.ScratchCardViewModelFactory
 import sk.lukasvyletel.scratchcard.shared.ui.DestinationAction
 import sk.lukasvyletel.scratchcard.shared.ui.DestinationScreen
 import sk.lukasvyletel.scratchcard.shared.ui.SectionLabel
@@ -40,6 +44,9 @@ fun ScratchCardScreen(
     isRevealing: Boolean = false,
     onRevealClick: () -> Unit = {},
 ) {
+    val scratchCardViewModel: ScratchCardViewModel = viewModel(
+        factory = ScratchCardViewModelFactory(LocalInjector.current.scratchCardModule),
+    )
     DestinationScreen(
         title = R.string.scratch_screen_title,
         description = R.string.scratch_screen_description,
@@ -55,7 +62,10 @@ fun ScratchCardScreen(
                 else -> R.string.scratch_reveal_action
             },
             tag = "revealButton",
-            onClick = onRevealClick,
+            onClick = {
+                scratchCardViewModel.scratchCard()
+                onRevealClick()
+            },
             modifier = Modifier.padding(top = 24.dp),
             enabled = code == null && !isRevealing,
         )
