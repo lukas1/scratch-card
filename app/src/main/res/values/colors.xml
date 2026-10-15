@@ -6,4 +6,6 @@
     <color name="scratch_card_dark">#112A25</color>
     <color name="scratch_card_light">#285047</color>
     <color name="scratch_soft_green">#E8F0E9</color>
+    <color name="scratch_foil_light">#F4F8DE</color>
+    <color name="scratch_foil_dark">#BED5BB</color>
 </resources>

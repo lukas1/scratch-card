@@ -4,6 +4,8 @@ import android.content.Context
 import android.os.Build
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -57,5 +59,46 @@ class ActivateCardScreenTest {
         compose.runOnIdle {
             assertEquals(listOf(HomeRoute), injector.globalModule.navigation.backStack.toList())
         }
+    }
+
+    @Test
+    fun `GIVEN a revealed code WHEN activation screen opens THEN code and action are shown`() {
+        val code = "123e4567-e89b-12d3-a456-426614174000"
+        compose.setContent {
+            CompositionLocalProvider(LocalInjector provides MockInjector()) {
+                ActivateCardScreen(code = code)
+            }
+        }
+
+        compose.onNodeWithTag("activationCode").assertTextEquals(code)
+        compose.onNodeWithTag("activateCardButton").assertHasClickAction()
+    }
+
+    @Test
+    fun `GIVEN activation error WHEN dismissed THEN dismissal is requested`() {
+        var dismissed = false
+        compose.setContent {
+            CompositionLocalProvider(LocalInjector provides MockInjector()) {
+                ActivateCardScreen(showError = true, onDismissError = { dismissed = true })
+            }
+        }
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        compose.onNodeWithTag("activationErrorDialog").assertIsDisplayed()
+        compose.onNodeWithTag("activationErrorDismissButton")
+            .assertTextEquals(context.getString(R.string.activation_error_dismiss))
+            .performClick()
+        compose.runOnIdle { assertEquals(true, dismissed) }
+    }
+
+    @Test
+    fun `GIVEN activation in progress THEN activation action is unavailable`() {
+        compose.setContent {
+            CompositionLocalProvider(LocalInjector provides MockInjector()) {
+                ActivateCardScreen(isActivating = true)
+            }
+        }
+
+        compose.onNodeWithTag("activateCardButton").assertIsNotEnabled()
     }
 }

@@ -44,7 +44,7 @@ class HomeScreenTest {
 
         val context = ApplicationProvider.getApplicationContext<Context>()
         compose.onNodeWithTag("cardStatus").assertTextEquals(context.getString(R.string.card_state_unscratched))
-        compose.onNodeWithTag("cardCode").assertTextEquals(context.getString(R.string.home_hidden_code))
+        compose.onNodeWithTag("cardCode").assertTextEquals(context.getString(R.string.card_hidden_code))
     }
 
     @Test
