@@ -14,6 +14,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -22,9 +23,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import sk.lukasvyletel.scratchcard.R
+import sk.lukasvyletel.scratchcard.core.annotations.ExcludeFromCoverage
+import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
+import sk.lukasvyletel.scratchcard.core.dependency_injection.PreviewInjector
 import sk.lukasvyletel.scratchcard.shared.ui.DestinationAction
 import sk.lukasvyletel.scratchcard.shared.ui.DestinationScreen
 import sk.lukasvyletel.scratchcard.shared.ui.SectionLabel
@@ -144,4 +149,71 @@ private fun ActivationErrorDialog(onDismiss: () -> Unit) {
             }
         },
     )
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFFF7F5EF, widthDp = 380)
+@ExcludeFromCoverage
+@Composable
+private fun ActivateCardScreenPendingPreview() {
+    ActivateCardScreenPreviewContent()
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFFF7F5EF, widthDp = 380)
+@ExcludeFromCoverage
+@Composable
+private fun ActivateCardScreenPendingWhileActivatingPreview() {
+    ActivateCardScreenPreviewContent(isActivating = true)
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFFF7F5EF, widthDp = 380)
+@ExcludeFromCoverage
+@Composable
+private fun ActivateCardScreenReadyPreview() {
+    ActivateCardScreenPreviewContent(code = "SC-4829-7316")
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFFF7F5EF, widthDp = 380)
+@ExcludeFromCoverage
+@Composable
+private fun ActivateCardScreenReadyWhileActivatingPreview() {
+    ActivateCardScreenPreviewContent(code = "SC-4829-7316", isActivating = true)
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFFF7F5EF, widthDp = 380)
+@ExcludeFromCoverage
+@Composable
+private fun ActivateCardScreenPendingWithErrorPreview() {
+    ActivateCardScreenPreviewContent(showError = true)
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFFF7F5EF, widthDp = 380)
+@ExcludeFromCoverage
+@Composable
+private fun ActivateCardScreenPendingWhileActivatingWithErrorPreview() {
+    ActivateCardScreenPreviewContent(isActivating = true, showError = true)
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFFF7F5EF, widthDp = 380)
+@ExcludeFromCoverage
+@Composable
+private fun ActivateCardScreenReadyWithErrorPreview() {
+    ActivateCardScreenPreviewContent(code = "SC-4829-7316", showError = true)
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFFF7F5EF, widthDp = 380)
+@ExcludeFromCoverage
+@Composable
+private fun ActivateCardScreenReadyWhileActivatingWithErrorPreview() {
+    ActivateCardScreenPreviewContent(code = "SC-4829-7316", isActivating = true, showError = true)
+}
+
+@Composable
+private fun ActivateCardScreenPreviewContent(
+    code: String? = null,
+    isActivating: Boolean = false,
+    showError: Boolean = false,
+) {
+    CompositionLocalProvider(LocalInjector provides PreviewInjector()) {
+        ActivateCardScreen(code = code, isActivating = isActivating, showError = showError)
+    }
 }

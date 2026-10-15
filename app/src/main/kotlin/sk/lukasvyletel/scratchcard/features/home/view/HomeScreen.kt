@@ -9,13 +9,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import sk.lukasvyletel.scratchcard.ActivationRoute
 import sk.lukasvyletel.scratchcard.R
 import sk.lukasvyletel.scratchcard.ScratchRoute
 import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
+import sk.lukasvyletel.scratchcard.core.dependency_injection.PreviewInjector
+import sk.lukasvyletel.scratchcard.core.annotations.ExcludeFromCoverage
 import sk.lukasvyletel.scratchcard.features.card.ScratchCardState
 
 @Composable
@@ -40,5 +44,33 @@ fun HomeScreen(cardState: ScratchCardState) {
             onScratchClick = { navigation.navigateTo(ScratchRoute) },
             onActivationClick = { navigation.navigateTo(ActivationRoute) },
         )
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFFF7F5EF, widthDp = 380)
+@ExcludeFromCoverage
+@Composable
+private fun HomeScreenUnscratchedPreview() {
+    HomeScreenPreviewContent(ScratchCardState.Unscratched)
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFFF7F5EF, widthDp = 380)
+@ExcludeFromCoverage
+@Composable
+private fun HomeScreenScratchedPreview() {
+    HomeScreenPreviewContent(ScratchCardState.Scratched("SC-4829-7316"))
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFFF7F5EF, widthDp = 380)
+@ExcludeFromCoverage
+@Composable
+private fun HomeScreenActivatedPreview() {
+    HomeScreenPreviewContent(ScratchCardState.Activated("SC-4829-7316"))
+}
+
+@Composable
+private fun HomeScreenPreviewContent(cardState: ScratchCardState) {
+    CompositionLocalProvider(LocalInjector provides PreviewInjector()) {
+        HomeScreen(cardState)
     }
 }

@@ -75,6 +75,12 @@ details, or implementation notes to the project.
 ## Coding rules
 
 - This is a single-module codebase, so do not use the `internal` keyword.
+- Annotate every Compose preview function with
+  `@ExcludeFromCoverage` from `core.annotations` so preview code is excluded from
+  coverage reports.
+- When a preview needs an injector, provide `PreviewInjector`; do not use
+  `RealInjector` in previews.
+- Do not add preview-specific conditional logic to production composables.
 - Keep composables focused on rendering and user events. Use constructor injection
   for collaborators; resolve dependencies at the application or screen boundary.
 - Keep generic networking independent of feature services and endpoint addresses.

@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,9 +24,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import sk.lukasvyletel.scratchcard.R
+import sk.lukasvyletel.scratchcard.core.annotations.ExcludeFromCoverage
+import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
+import sk.lukasvyletel.scratchcard.core.dependency_injection.PreviewInjector
 import sk.lukasvyletel.scratchcard.shared.ui.DestinationAction
 import sk.lukasvyletel.scratchcard.shared.ui.DestinationScreen
 import sk.lukasvyletel.scratchcard.shared.ui.SectionLabel
@@ -155,5 +160,33 @@ private fun ScratchInstructions() {
                 lineHeight = 18.sp,
             )
         }
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFFF7F5EF, widthDp = 380)
+@ExcludeFromCoverage
+@Composable
+private fun ScratchCardScreenReadyToRevealPreview() {
+    ScratchCardScreenPreviewContent()
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFFF7F5EF, widthDp = 380)
+@ExcludeFromCoverage
+@Composable
+private fun ScratchCardScreenRevealingPreview() {
+    ScratchCardScreenPreviewContent(isRevealing = true)
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFFF7F5EF, widthDp = 380)
+@ExcludeFromCoverage
+@Composable
+private fun ScratchCardScreenRevealedPreview() {
+    ScratchCardScreenPreviewContent(code = "SC-4829-7316")
+}
+
+@Composable
+private fun ScratchCardScreenPreviewContent(code: String? = null, isRevealing: Boolean = false) {
+    CompositionLocalProvider(LocalInjector provides PreviewInjector()) {
+        ScratchCardScreen(code = code, isRevealing = isRevealing)
     }
 }
