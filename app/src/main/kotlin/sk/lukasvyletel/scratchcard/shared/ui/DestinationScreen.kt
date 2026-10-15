@@ -22,14 +22,14 @@ import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
 
 @Composable
 fun DestinationScreen(@StringRes title: Int, @StringRes description: Int) {
-    val backStack = LocalInjector.current.globalModule.backStack
+    val navigation = LocalInjector.current.globalModule.navigation
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(colorResource(R.color.scratch_cream))
             .padding(24.dp),
     ) {
-        TextButton(onClick = { backStack.removeLastOrNull() }) {
+        TextButton(onClick = { navigation.goBack() }) {
             Text(text = stringResource(R.string.navigate_back), color = colorResource(R.color.scratch_ink))
         }
         Spacer(modifier = Modifier.height(60.dp))

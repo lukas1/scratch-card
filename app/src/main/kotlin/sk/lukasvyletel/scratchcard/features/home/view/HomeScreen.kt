@@ -20,7 +20,7 @@ import sk.lukasvyletel.scratchcard.features.card.ScratchCardState
 
 @Composable
 fun HomeScreen(cardState: ScratchCardState) {
-    val backStack = LocalInjector.current.globalModule.backStack
+    val navigation = LocalInjector.current.globalModule.navigation
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -37,8 +37,8 @@ fun HomeScreen(cardState: ScratchCardState) {
         ScratchCardArtwork(cardState)
         Spacer(modifier = Modifier.height(20.dp))
         HomeActionButtons(
-            onScratchClick = { backStack.add(ScratchRoute) },
-            onActivationClick = { backStack.add(ActivationRoute) },
+            onScratchClick = { navigation.navigateTo(ScratchRoute) },
+            onActivationClick = { navigation.navigateTo(ActivationRoute) },
         )
     }
 }

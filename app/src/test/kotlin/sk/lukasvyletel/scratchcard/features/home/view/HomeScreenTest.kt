@@ -85,7 +85,10 @@ class HomeScreenTest {
         }
 
         compose.runOnIdle {
-            assertEquals(listOf(HomeRoute, ScratchRoute, ActivationRoute), injector.globalModule.backStack.toList())
+            assertEquals(
+                listOf(HomeRoute, ScratchRoute, ActivationRoute),
+                injector.globalModule.navigation.backStack.toList()
+            )
         }
     }
 }

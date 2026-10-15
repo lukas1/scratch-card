@@ -12,11 +12,11 @@ import sk.lukasvyletel.scratchcard.features.scratch.view.ScratchCardScreen
 
 @Composable
 fun AppNavigation(modifier: Modifier = Modifier) {
-    val backStack = LocalInjector.current.globalModule.backStack
+    val navigation = LocalInjector.current.globalModule.navigation
 
     NavDisplay(
-        backStack = backStack,
-        onBack = { backStack.removeLastOrNull() },
+        backStack = navigation.backStack,
+        onBack = { navigation.goBack() },
         modifier = modifier,
         entryProvider = { key ->
             when (key) {
