@@ -104,7 +104,7 @@ class HomeScreenTest {
     }
 
     @Test
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
+    @GraphicsMode(GraphicsMode.Mode.LEGACY)
     fun `GIVEN the home screen WHEN the scratch card is captured THEN the card is rendered`() {
         setupView()
 
