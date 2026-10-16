@@ -8,7 +8,7 @@ class RealInjector(baseUrl: String) : Injector by SharedInjector(
     versionService = createVersionService(baseUrl),
 )
 
-private fun createVersionService(baseUrl: String): VersionService =
+fun createVersionService(baseUrl: String): VersionService =
     RetrofitClientBuilder.buildRetrofit(
         baseUrl = baseUrl,
         httpClient = RetrofitClientBuilder.buildHttpClient(),
