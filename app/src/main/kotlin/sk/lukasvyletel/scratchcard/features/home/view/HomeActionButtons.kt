@@ -27,6 +27,7 @@ private val actionButtonHeight = 60.dp
 
 @Composable
 fun HomeActionButtons(
+    scratchEnabled: Boolean,
     activationEnabled: Boolean,
     onScratchClick: () -> Unit,
     onActivationClick: () -> Unit,
@@ -41,6 +42,7 @@ fun HomeActionButtons(
     )
     Button(
         onClick = onScratchClick,
+        enabled = scratchEnabled,
         modifier = Modifier.fillMaxWidth().padding(top = 10.dp).height(actionButtonHeight).testTag("scratchButton"),
         shape = actionButtonShape,
         colors = ButtonDefaults.buttonColors(

@@ -27,7 +27,6 @@ import org.robolectric.annotation.GraphicsMode
 import sk.lukasvyletel.scratchcard.ActivationRoute
 import sk.lukasvyletel.scratchcard.HomeRoute
 import sk.lukasvyletel.scratchcard.R
-import sk.lukasvyletel.scratchcard.ScratchRoute
 import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
 import sk.lukasvyletel.scratchcard.features.card.ScratchCardState
 import sk.lukasvyletel.scratchcard.test.MockInjector
@@ -66,6 +65,19 @@ class HomeScreenTest {
     }
 
     @Test
+    fun `GIVEN a scratched card THEN scratching is disabled`() = runTest {
+        val testInjector = MockInjector(
+            cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
+            activationCoroutineScope = backgroundScope,
+        )
+        testInjector.scratchCardModule.scratchCardRepository.scratchCard()
+        advanceUntilIdle()
+        setupView(testInjector)
+
+        compose.onNodeWithTag("scratchButton").assertIsNotEnabled()
+    }
+
+    @Test
     fun `GIVEN a revealed card WHEN activated THEN the status changes and code stays visible`() =
         runTest {
             val code = MockInjector.TEST_SCRATCH_CODE
@@ -92,7 +104,7 @@ class HomeScreenTest {
         }
 
     @Test
-    fun `GIVEN a revealed card WHEN navigation actions are clicked THEN routes are added to the injected back stack`() =
+    fun `GIVEN a revealed card WHEN activation is clicked THEN only the activation route is added`() =
         runTest {
             val testInjector = MockInjector(
                 cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
@@ -102,20 +114,16 @@ class HomeScreenTest {
             advanceUntilIdle()
             setupView(testInjector)
 
-            val scratchAction = compose.onNodeWithTag("scratchButton")
-                .assertHasClickAction()
-                .fetchSemanticsNode().config[SemanticsActions.OnClick]
             val activationAction = compose.onNodeWithTag("activationButton")
                 .assertHasClickAction()
                 .fetchSemanticsNode().config[SemanticsActions.OnClick]
             compose.runOnIdle {
-                scratchAction.action?.invoke()
                 activationAction.action?.invoke()
             }
 
             compose.runOnIdle {
                 assertEquals(
-                    listOf(HomeRoute, ScratchRoute, ActivationRoute),
+                    listOf(HomeRoute, ActivationRoute),
                     testInjector.globalModule.navigation.backStack.toList()
                 )
             }
