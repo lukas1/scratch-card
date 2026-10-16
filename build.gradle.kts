@@ -14,14 +14,18 @@ tasks.register<Delete>("clean") {
 
 tasks.register("qualityGate") {
     group = "verification"
-    description = "Runs the app build, static checks, tests, coverage report, and connected Android tests."
+    description = "Runs build, static checks, tests, and coverage for both service flavors, plus connected Android tests."
     dependsOn(
-        ":app:assembleDebug",
+        ":app:assembleMockDebug",
+        ":app:assembleProductionDebug",
         ":app:detekt",
-        ":app:lintDebug",
-        ":app:test",
-        ":app:koverHtmlReportDebug",
+        ":app:lintMockDebug",
+        ":app:lintProductionDebug",
+        ":app:testMockDebugUnitTest",
+        ":app:testProductionDebugUnitTest",
+        ":app:koverHtmlReportMockDebug",
+        ":app:koverHtmlReportProductionDebug",
         ":app:koverVerifyPackageCoverage",
-        ":app:connectedDebugAndroidTest",
+        ":app:connectedMockDebugAndroidTest",
     )
 }

@@ -1,4 +1,4 @@
-package sk.lukasvyletel.scratchcard.debug
+package sk.lukasvyletel.scratchcard
 
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
@@ -27,16 +27,9 @@ class MockVersionServer {
         }
     }
 
-    fun start(): String {
-        return runBlocking(Dispatchers.IO) {
-            server.start()
-            server.url("/").toString()
-        }
+    fun start(): String = runBlocking(Dispatchers.IO) {
+        server.start()
+        server.url("/").toString()
     }
 
-    fun stop() {
-        runBlocking(Dispatchers.IO) {
-            server.shutdown()
-        }
-    }
 }

@@ -28,9 +28,10 @@ details, or implementation notes to the project.
   ./gradlew qualityGate
   ```
 
-- The root `qualityGate` task runs `:app:assembleDebug`, `:app:detekt`,
-  `:app:lintDebug`, `:app:test`, `:app:koverHtmlReportDebug`, and
-  `:app:connectedDebugAndroidTest`.
+- The root `qualityGate` task assembles, lints, runs JVM tests, and produces
+  coverage reports for both `mockDebug` and `productionDebug`. It runs connected
+  Android tests on `mockDebug` only because the test application overrides
+  application wiring.
 
 - Run the instrumented tests on a connected device or emulator for every quality
   gate, whether or not instrumented tests changed in that code change.
@@ -38,7 +39,7 @@ details, or implementation notes to the project.
   enabled: their Compose test activity must be configured separately.
 - Cover critical behavior with unit tests. Prefer deterministic coroutine tests
   using `kotlinx-coroutines-test` and controlled dispatchers instead of real waits.
-- Kover is prepared for debug coverage reporting. Introduce meaningful verification
+- Kover is prepared for debug flavor coverage reporting. Introduce meaningful verification
   bounds as critical behavior is implemented; do not copy a coverage threshold
   from another application or exclude behavior solely to improve the percentage.
 - Fix compile warnings and lint findings. Lint warnings are errors; there is no

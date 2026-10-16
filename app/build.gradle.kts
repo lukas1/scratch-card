@@ -15,7 +15,8 @@ detekt {
 kover {
     currentProject {
         createVariant("packageCoverage") {
-            add("debug")
+            add("mockDebug")
+            add("productionDebug")
         }
     }
     reports {
@@ -25,7 +26,10 @@ kover {
                 classes("*Preview*")
             }
         }
-        variant("debug") {
+        variant("mockDebug") {
+            html {}
+        }
+        variant("productionDebug") {
             html {}
         }
         variant("packageCoverage") {
@@ -63,6 +67,16 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "sk.lukasvyletel.scratchcard.ScratchCardAppTestRunner"
+    }
+
+    flavorDimensions += "service"
+    productFlavors {
+        create("mock") {
+            dimension = "service"
+        }
+        create("production") {
+            dimension = "service"
+        }
     }
 
     buildTypes {
@@ -107,7 +121,6 @@ dependencies {
 
     // Generic HTTP and JSON infrastructure
     implementation(libs.squareup.okhttp)
-    implementation(libs.squareup.okhttp.mockwebserver)
     implementation(libs.squareup.okhttp.logging.interceptor)
     implementation(libs.squareup.retrofit)
     implementation(libs.squareup.retrofit.converter.kotlinx.serialization)
@@ -128,6 +141,8 @@ dependencies {
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.squareup.okhttp.mockwebserver)
+
+    add("mockImplementation", libs.squareup.okhttp.mockwebserver)
 
     // Supplies the activity used by Compose tests, including Robolectric.
     debugImplementation(libs.androidx.compose.ui.test.manifest)
