@@ -10,6 +10,7 @@ import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
 import sk.lukasvyletel.scratchcard.core.dependency_injection.PreviewInjector
 import sk.lukasvyletel.scratchcard.features.scratch.view.ScratchCardScreenContent
 
+// Moved to a standalone file because Kover cannot exclude lambdas from coverage otherwise
 @Preview
 @Composable
 fun ScratchCardScreenPreviewContent(code: String? = null, isRevealing: Boolean = false) {

@@ -10,6 +10,7 @@ import sk.lukasvyletel.scratchcard.core.annotations.ExcludeFromCoverage
 import sk.lukasvyletel.scratchcard.shared.ui.ScratchCardCodePanel
 import sk.lukasvyletel.scratchcard.shared.ui.ScratchCardFrame
 
+// Moved to a standalone file because Kover cannot exclude lambdas from coverage otherwise
 @Preview(showBackground = true, backgroundColor = 0xFFF7F5EF, widthDp = 380)
 @Composable
 fun ScratchCardPreview() {

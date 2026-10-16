@@ -12,6 +12,7 @@ import sk.lukasvyletel.scratchcard.features.activate.view.ActivateCardScreenCont
 import sk.lukasvyletel.scratchcard.features.activate.viewmodel.ActivationButtonState
 import sk.lukasvyletel.scratchcard.features.card.model.ActivationError
 
+// Moved to a standalone file because Kover cannot exclude lambdas from coverage otherwise
 @Preview
 @Composable
 fun ActivateCardScreenPreviewContent(

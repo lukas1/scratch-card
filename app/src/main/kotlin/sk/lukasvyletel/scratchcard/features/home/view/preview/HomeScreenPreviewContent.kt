@@ -11,6 +11,7 @@ import sk.lukasvyletel.scratchcard.core.dependency_injection.PreviewInjector
 import sk.lukasvyletel.scratchcard.features.card.model.ScratchCardState
 import sk.lukasvyletel.scratchcard.features.home.view.HomeScreen
 
+// Moved to a standalone file because Kover cannot exclude lambdas from coverage otherwise
 @Preview
 @Composable
 fun HomeScreenPreviewContent(cardState: ScratchCardState = ScratchCardState.Unscratched) {
