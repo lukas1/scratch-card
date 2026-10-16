@@ -60,5 +60,6 @@ The assignment describes the activation service but does not provide its base
 URL, so the app has two build variants. The `production` variant uses a
 hardcoded base URL (`http://10.0.2.2:8080/`), which can be replaced with the
 service URL when it is available. The `mock` variant starts an in-process
-MockWebServer and serves randomized version responses, so the app can be run and
-its activation success and error flows explored without a backend.
+MockWebServer and randomly serves version responses or HTTP 500 errors, so the
+app can be run and its activation success and error flows explored without a
+backend.
