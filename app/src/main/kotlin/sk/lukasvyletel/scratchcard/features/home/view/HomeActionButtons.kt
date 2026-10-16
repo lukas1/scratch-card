@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +27,7 @@ private val actionButtonHeight = 60.dp
 
 @Composable
 fun HomeActionButtons(
+    activationEnabled: Boolean,
     onScratchClick: () -> Unit,
     onActivationClick: () -> Unit,
 ) {
@@ -49,16 +51,35 @@ fun HomeActionButtons(
     ) {
         ActionContent(stringResource(R.string.home_scratch_action), Color.White)
     }
-    OutlinedButton(
-        onClick = onActivationClick,
-        modifier = Modifier.fillMaxWidth().padding(top = 10.dp).height(actionButtonHeight).testTag("activationButton"),
-        shape = actionButtonShape,
-        colors = ButtonDefaults.outlinedButtonColors(contentColor = colorResource(R.color.scratch_ink)),
-        border = BorderStroke(
-            1.dp,
-            colorResource(R.color.scratch_ink).copy(alpha = 0.25f),
-        ),
-    ) {
-        ActionContent(stringResource(R.string.home_activation_action), colorResource(R.color.scratch_ink))
+    val activationButtonModifier = Modifier
+        .fillMaxWidth()
+        .padding(top = 10.dp)
+        .height(actionButtonHeight)
+        .testTag("activationButton")
+    if (activationEnabled) {
+        OutlinedButton(
+            onClick = onActivationClick,
+            modifier = activationButtonModifier,
+            shape = actionButtonShape,
+            colors = ButtonDefaults.outlinedButtonColors(contentColor = colorResource(R.color.scratch_ink)),
+            border = BorderStroke(1.dp, colorResource(R.color.scratch_ink).copy(alpha = 0.25f)),
+        ) {
+            ActionContent(stringResource(R.string.home_activation_action), colorResource(R.color.scratch_ink))
+        }
+    } else {
+        val disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+        Button(
+            onClick = onActivationClick,
+            enabled = false,
+            modifier = activationButtonModifier,
+            shape = actionButtonShape,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colorResource(R.color.scratch_ink),
+                contentColor = Color.White,
+            ),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp),
+        ) {
+            ActionContent(stringResource(R.string.home_activation_action), disabledContentColor)
+        }
     }
 }

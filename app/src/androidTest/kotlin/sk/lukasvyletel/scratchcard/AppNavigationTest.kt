@@ -1,7 +1,9 @@
 package sk.lukasvyletel.scratchcard
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -19,9 +21,15 @@ class AppNavigationTest {
     fun givenHomeScreen_whenNavigatingToScratchAndBackThenActivationAndBack_thenReturnsHomeEachTime() {
         val context = compose.activity
 
+        compose.onNodeWithTag("activationButton").assertIsNotEnabled()
         compose.onNodeWithTag("scratchButton").assertIsDisplayed().performClick()
         compose.onNodeWithText(context.getString(R.string.scratch_screen_title)).assertIsDisplayed()
 
+        compose.onNodeWithTag("revealButton").performClick()
+        compose.waitUntil(timeoutMillis = 5_000) {
+            compose.onAllNodesWithText(context.getString(R.string.scratch_revealed_action))
+                .fetchSemanticsNodes().isNotEmpty()
+        }
         compose.onNodeWithText(context.getString(R.string.navigate_back)).performClick()
         compose.onNodeWithTag("activationButton").assertIsDisplayed()
 

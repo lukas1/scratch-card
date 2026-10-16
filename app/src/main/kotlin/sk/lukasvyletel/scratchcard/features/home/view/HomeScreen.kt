@@ -49,6 +49,7 @@ fun HomeScreen(cardState: ScratchCardState) {
         ScratchCardArtwork(cardState)
         Spacer(modifier = Modifier.height(20.dp))
         HomeActionButtons(
+            activationEnabled = cardState is ScratchCardState.Scratched,
             onScratchClick = { navigation.navigateTo(ScratchRoute) },
             onActivationClick = { navigation.navigateTo(ActivationRoute) },
         )

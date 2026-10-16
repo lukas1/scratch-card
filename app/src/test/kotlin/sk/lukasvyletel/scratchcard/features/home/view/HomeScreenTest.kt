@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Build
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -58,6 +59,13 @@ class HomeScreenTest {
     }
 
     @Test
+    fun `GIVEN an unscratched card THEN activation is disabled`() {
+        setupView()
+
+        compose.onNodeWithTag("activationButton").assertIsNotEnabled()
+    }
+
+    @Test
     fun `GIVEN a revealed card WHEN activated THEN the status changes and code stays visible`() =
         runTest {
             val code = MockInjector.TEST_SCRATCH_CODE
@@ -84,27 +92,34 @@ class HomeScreenTest {
         }
 
     @Test
-    fun `GIVEN the main screen WHEN navigation actions are clicked THEN routes are added to the injected back stack`() {
-        setupView()
-
-        val scratchAction = compose.onNodeWithTag("scratchButton")
-            .assertHasClickAction()
-            .fetchSemanticsNode().config[SemanticsActions.OnClick]
-        val activationAction = compose.onNodeWithTag("activationButton")
-            .assertHasClickAction()
-            .fetchSemanticsNode().config[SemanticsActions.OnClick]
-        compose.runOnIdle {
-            scratchAction.action?.invoke()
-            activationAction.action?.invoke()
-        }
-
-        compose.runOnIdle {
-            assertEquals(
-                listOf(HomeRoute, ScratchRoute, ActivationRoute),
-                injector.globalModule.navigation.backStack.toList()
+    fun `GIVEN a revealed card WHEN navigation actions are clicked THEN routes are added to the injected back stack`() =
+        runTest {
+            val testInjector = MockInjector(
+                cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
+                activationCoroutineScope = backgroundScope,
             )
+            testInjector.scratchCardModule.scratchCardRepository.scratchCard()
+            advanceUntilIdle()
+            setupView(testInjector)
+
+            val scratchAction = compose.onNodeWithTag("scratchButton")
+                .assertHasClickAction()
+                .fetchSemanticsNode().config[SemanticsActions.OnClick]
+            val activationAction = compose.onNodeWithTag("activationButton")
+                .assertHasClickAction()
+                .fetchSemanticsNode().config[SemanticsActions.OnClick]
+            compose.runOnIdle {
+                scratchAction.action?.invoke()
+                activationAction.action?.invoke()
+            }
+
+            compose.runOnIdle {
+                assertEquals(
+                    listOf(HomeRoute, ScratchRoute, ActivationRoute),
+                    testInjector.globalModule.navigation.backStack.toList()
+                )
+            }
         }
-    }
 
     @Test
     @GraphicsMode(GraphicsMode.Mode.LEGACY)
