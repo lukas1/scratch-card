@@ -4,7 +4,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,6 +19,7 @@ private const val SCRATCH_CARD_DELAY_MILLIS = 2_000L
 
 class ScratchCardRepository(
     private val scratchCardCodeGenerator: ScratchCardCodeGenerator,
+    private val delayFunction: DelayFunction,
     private val cpuBoundCoroutineDispatcher: CoroutineDispatcher = Dispatchers.Default,
     private val activationCoroutineScope: CoroutineScope,
     private val scratchCardApi: ScratchCardApi,
@@ -40,7 +40,7 @@ class ScratchCardRepository(
         scratchMutex.withLock {
             if (_cardStateFlow.value != ScratchCardState.Unscratched) return@withLock
 
-            delay(SCRATCH_CARD_DELAY_MILLIS.milliseconds)
+            delayFunction(SCRATCH_CARD_DELAY_MILLIS.milliseconds)
             _cardStateFlow.emit(ScratchCardState.Scratched(code = scratchCardCodeGenerator()))
         }
     }
