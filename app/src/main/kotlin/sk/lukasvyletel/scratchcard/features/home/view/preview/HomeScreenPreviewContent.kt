@@ -8,7 +8,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import sk.lukasvyletel.scratchcard.core.annotations.ExcludeFromCoverage
 import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
 import sk.lukasvyletel.scratchcard.core.dependency_injection.PreviewInjector
-import sk.lukasvyletel.scratchcard.features.card.ScratchCardState
+import sk.lukasvyletel.scratchcard.features.card.model.ScratchCardState
 import sk.lukasvyletel.scratchcard.features.home.view.HomeScreen
 
 @Preview

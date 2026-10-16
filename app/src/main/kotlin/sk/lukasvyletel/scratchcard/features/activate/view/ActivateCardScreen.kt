@@ -35,7 +35,7 @@ import sk.lukasvyletel.scratchcard.features.activate.view.preview.ActivateCardSc
 import sk.lukasvyletel.scratchcard.features.activate.viewmodel.ActivationButtonState
 import sk.lukasvyletel.scratchcard.features.activate.viewmodel.ActivateCardViewModel
 import sk.lukasvyletel.scratchcard.features.activate.viewmodel.ActivateCardViewModelFactory
-import sk.lukasvyletel.scratchcard.features.card.ActivationError
+import sk.lukasvyletel.scratchcard.features.card.model.ActivationError
 import sk.lukasvyletel.scratchcard.shared.ui.DestinationAction
 import sk.lukasvyletel.scratchcard.shared.ui.DestinationScreen
 import sk.lukasvyletel.scratchcard.shared.ui.ScratchCardCodePanel

@@ -1,4 +1,4 @@
-package sk.lukasvyletel.scratchcard.features.card
+package sk.lukasvyletel.scratchcard.features.card.repository
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -12,15 +12,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import sk.lukasvyletel.scratchcard.core.coroutines.DelayFunction
 import sk.lukasvyletel.scratchcard.features.card.api.ScratchCardApi
+import sk.lukasvyletel.scratchcard.features.card.model.ActivationError
+import sk.lukasvyletel.scratchcard.features.card.model.ScratchCardState
 import kotlin.time.Duration.Companion.milliseconds
 
 private const val SCRATCH_CARD_DELAY_MILLIS = 2_000L
-
-enum class ActivationError {
-    ACTIVATION_FAILED,
-    UNEXPECTED_ERROR,
-}
 
 class ScratchCardRepository(
     private val scratchCardCodeGenerator: ScratchCardCodeGenerator,

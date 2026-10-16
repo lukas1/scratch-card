@@ -27,7 +27,7 @@ import sk.lukasvyletel.scratchcard.HomeRoute
 import sk.lukasvyletel.scratchcard.R
 import sk.lukasvyletel.scratchcard.ScratchRoute
 import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
-import sk.lukasvyletel.scratchcard.features.card.ScratchCardState
+import sk.lukasvyletel.scratchcard.features.card.model.ScratchCardState
 import sk.lukasvyletel.scratchcard.test.MockInjector
 import kotlin.time.Duration.Companion.milliseconds
 

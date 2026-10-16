@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import sk.lukasvyletel.scratchcard.core.coroutines.WHILE_SUBSCRIBED_STOP_TIMEOUT_FOR_CONFIGURATION_CHANGES_MILLIS
-import sk.lukasvyletel.scratchcard.features.card.ScratchCardRepository
-import sk.lukasvyletel.scratchcard.features.card.ScratchCardState
+import sk.lukasvyletel.scratchcard.features.card.repository.ScratchCardRepository
+import sk.lukasvyletel.scratchcard.features.card.model.ScratchCardState
 
 class ScratchCardViewModel(
     private val scratchCardRepository: ScratchCardRepository,

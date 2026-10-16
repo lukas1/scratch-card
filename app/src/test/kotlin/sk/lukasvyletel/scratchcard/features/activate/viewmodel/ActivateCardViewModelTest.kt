@@ -14,8 +14,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
-import sk.lukasvyletel.scratchcard.features.card.ScratchCardRepository
-import sk.lukasvyletel.scratchcard.features.card.ScratchCardState
+import sk.lukasvyletel.scratchcard.features.card.repository.ScratchCardRepository
+import sk.lukasvyletel.scratchcard.features.card.model.ScratchCardState
 import sk.lukasvyletel.scratchcard.test.MainDispatcherRule
 import sk.lukasvyletel.scratchcard.test.MockInjector
 import kotlin.time.Duration.Companion.milliseconds

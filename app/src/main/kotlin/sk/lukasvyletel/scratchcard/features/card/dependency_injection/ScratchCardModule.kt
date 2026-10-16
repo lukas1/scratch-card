@@ -4,10 +4,10 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import sk.lukasvyletel.scratchcard.features.card.api.VersionService
 import sk.lukasvyletel.scratchcard.features.card.api.ScratchCardApi
-import sk.lukasvyletel.scratchcard.features.card.ScratchCardCodeGenerator
-import sk.lukasvyletel.scratchcard.features.card.DelayFunction
-import sk.lukasvyletel.scratchcard.features.card.ScratchCardRepository
-import sk.lukasvyletel.scratchcard.features.card.coroutineDelay
+import sk.lukasvyletel.scratchcard.features.card.repository.ScratchCardCodeGenerator
+import sk.lukasvyletel.scratchcard.core.coroutines.DelayFunction
+import sk.lukasvyletel.scratchcard.features.card.repository.ScratchCardRepository
+import sk.lukasvyletel.scratchcard.core.coroutines.coroutineDelay
 
 class ScratchCardModule(
     scratchCardCodeGenerator: ScratchCardCodeGenerator,

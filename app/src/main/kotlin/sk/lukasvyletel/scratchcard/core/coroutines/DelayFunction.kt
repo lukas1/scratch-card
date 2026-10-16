@@ -1,4 +1,4 @@
-package sk.lukasvyletel.scratchcard.features.card
+package sk.lukasvyletel.scratchcard.core.coroutines
 
 import kotlinx.coroutines.delay
 import kotlin.time.Duration

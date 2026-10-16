@@ -14,6 +14,9 @@ import sk.lukasvyletel.scratchcard.features.card.api.ActivationVersion
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import sk.lukasvyletel.scratchcard.features.card.dependency_injection.ScratchCardModule
+import sk.lukasvyletel.scratchcard.features.card.model.ScratchCardState
+import sk.lukasvyletel.scratchcard.features.card.repository.ScratchCardCodeGenerator
+import sk.lukasvyletel.scratchcard.features.card.repository.ScratchCardRepository
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)

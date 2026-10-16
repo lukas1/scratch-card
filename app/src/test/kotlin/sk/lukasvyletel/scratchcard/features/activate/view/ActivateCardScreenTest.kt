@@ -32,7 +32,7 @@ import sk.lukasvyletel.scratchcard.R
 import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
 import sk.lukasvyletel.scratchcard.features.card.api.ActivationVersion
 import sk.lukasvyletel.scratchcard.features.card.api.VersionService
-import sk.lukasvyletel.scratchcard.features.card.ScratchCardState
+import sk.lukasvyletel.scratchcard.features.card.model.ScratchCardState
 import sk.lukasvyletel.scratchcard.features.card.api.ScratchCardApi
 import sk.lukasvyletel.scratchcard.test.MainDispatcherRule
 import sk.lukasvyletel.scratchcard.test.MockInjector

@@ -3,7 +3,7 @@ package sk.lukasvyletel.scratchcard.features.home.view
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import sk.lukasvyletel.scratchcard.R
-import sk.lukasvyletel.scratchcard.features.card.ScratchCardState
+import sk.lukasvyletel.scratchcard.features.card.model.ScratchCardState
 import sk.lukasvyletel.scratchcard.shared.ui.ScratchCardCodePanel
 import sk.lukasvyletel.scratchcard.shared.ui.ScratchCardFrame
 

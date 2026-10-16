@@ -10,7 +10,7 @@ import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
 import sk.lukasvyletel.scratchcard.core.dependency_injection.PreviewInjector
 import sk.lukasvyletel.scratchcard.features.activate.view.ActivateCardScreenContent
 import sk.lukasvyletel.scratchcard.features.activate.viewmodel.ActivationButtonState
-import sk.lukasvyletel.scratchcard.features.card.ActivationError
+import sk.lukasvyletel.scratchcard.features.card.model.ActivationError
 
 @Preview
 @Composable

@@ -21,7 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import sk.lukasvyletel.scratchcard.R
-import sk.lukasvyletel.scratchcard.features.card.ScratchCardState
+import sk.lukasvyletel.scratchcard.features.card.model.ScratchCardState
 
 private const val STATUS_BORDER_ALPHA = 0.12f
 

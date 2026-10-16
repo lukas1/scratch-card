@@ -6,7 +6,7 @@ import sk.lukasvyletel.scratchcard.features.card.api.ActivationVersion
 import sk.lukasvyletel.scratchcard.features.card.api.VersionService
 import sk.lukasvyletel.scratchcard.features.card.api.ScratchCardApi
 import kotlinx.coroutines.CoroutineScope
-import sk.lukasvyletel.scratchcard.features.card.ScratchCardCodeGenerator
+import sk.lukasvyletel.scratchcard.features.card.repository.ScratchCardCodeGenerator
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 

@@ -1,4 +1,4 @@
-package sk.lukasvyletel.scratchcard.features.card
+package sk.lukasvyletel.scratchcard.features.card.model
 
 sealed interface ScratchCardState {
     data object Unscratched : ScratchCardState
