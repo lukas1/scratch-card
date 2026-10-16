@@ -5,6 +5,7 @@ import android.os.Build
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.captureToImage
@@ -12,7 +13,10 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.core.app.ApplicationProvider
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -80,6 +84,73 @@ class HomeScreenTest {
         setupView(testInjector)
 
         compose.onNodeWithTag("scratchButton").assertIsNotEnabled()
+    }
+
+    @Test
+    fun `GIVEN a scratched card WHEN reset is clicked THEN the card returns to its unscratched state`() = runTest {
+        val testInjector = MockInjector(
+            cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
+            activationCoroutineScope = backgroundScope,
+        )
+        val repository = testInjector.scratchCardModule.scratchCardRepository
+        repository.scratchCard()
+        advanceUntilIdle()
+        setupView(testInjector)
+
+        compose.onNodeWithTag("resetCardButton")
+            .performScrollTo()
+            .performClick()
+
+        compose.runOnIdle {
+            assertEquals(ScratchCardState.Unscratched, repository.cardStateFlow.value)
+        }
+        compose.onNodeWithTag("scratchButton").assertIsEnabled()
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        compose.onNodeWithTag("cardCode").assertTextEquals(context.getString(R.string.card_hidden_code))
+    }
+
+    @Test
+    fun `GIVEN activation is pending WHEN reset is clicked THEN a late response is ignored`() =
+        runTest {
+        val activationStarted = CompletableDeferred<Unit>()
+        val activationResponse = CompletableDeferred<ActivationVersion>()
+        val testInjector = MockInjector(
+            cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
+            activationCoroutineScope = backgroundScope,
+            versionService = VersionService {
+                activationStarted.complete(Unit)
+                activationResponse.await()
+            },
+        )
+        val repository = testInjector.scratchCardModule.scratchCardRepository
+        val code = MockInjector.TEST_SCRATCH_CODE
+        repository.scratchCard()
+        advanceUntilIdle()
+        setupView(testInjector)
+
+        repository.activateCard(ScratchCardState.Scratched(code))
+        runCurrent()
+        activationStarted.await()
+
+        compose.onNodeWithTag("resetCardButton")
+            .performScrollTo()
+            .performClick()
+        compose.runOnIdle {
+            assertEquals(ScratchCardState.Unscratched, repository.cardStateFlow.value)
+        }
+
+        activationResponse.complete(
+            ActivationVersion((ScratchCardApi.ACTIVATION_VERSION_THRESHOLD + 1).toString()),
+        )
+        runCurrent()
+
+        compose.runOnIdle {
+            assertEquals(ScratchCardState.Unscratched, repository.cardStateFlow.value)
+        }
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        compose.onNodeWithTag("cardStatus")
+            .assertTextEquals(context.getString(R.string.card_state_unscratched))
+        compose.onNodeWithTag("cardCode").assertTextEquals(context.getString(R.string.card_hidden_code))
     }
 
     @Test

@@ -19,6 +19,7 @@
     <string name="home_next_step">YOUR NEXT STEP</string>
     <string name="home_scratch_action">Scratch my card</string>
     <string name="home_activation_action">Activate card</string>
+    <string name="home_reset_action">Reset card</string>
     <string name="scratch_screen_title">Scratch your card</string>
     <string name="scratch_screen_description">A new code is waiting beneath the surface.</string>
     <string name="scratch_step">01 / REVEAL</string>

@@ -73,6 +73,7 @@ fun HomeScreen(cardState: ScratchCardState) {
                 activationEnabled = cardState is ScratchCardState.Scratched,
                 onScratchClick = { navigation.navigateTo(ScratchRoute) },
                 onActivationClick = { navigation.navigateTo(ActivationRoute) },
+                onResetClick = scratchCardRepository::resetCard,
             )
         }
     }

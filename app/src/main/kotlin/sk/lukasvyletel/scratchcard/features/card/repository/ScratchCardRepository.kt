@@ -6,7 +6,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import sk.lukasvyletel.scratchcard.features.card.api.CardScratcher
@@ -42,12 +41,13 @@ class ScratchCardRepository(
                 if (_cardStateFlow.value != scratchedCard) return@withLock
 
                 _activationErrorFlow.value = null
-                scratchCardApi.activateCard(scratchedCard.code).fold(
+                val result = scratchCardApi.activateCard(scratchedCard.code)
+                if (_cardStateFlow.value != scratchedCard) return@withLock
+
+                result.fold(
                     onSuccess = { isActivated ->
                         if (isActivated) {
-                            _cardStateFlow.update {
-                                ScratchCardState.Activated(code = scratchedCard.code)
-                            }
+                            _cardStateFlow.value = ScratchCardState.Activated(code = scratchedCard.code)
                         } else {
                             _activationErrorFlow.value = ActivationError.ACTIVATION_FAILED
                         }
@@ -56,6 +56,11 @@ class ScratchCardRepository(
                 )
             }
         }
+
+    fun resetCard() {
+        _cardStateFlow.value = ScratchCardState.Unscratched
+        _activationErrorFlow.value = null
+    }
 
     fun dismissActivationError() {
         _activationErrorFlow.value = null

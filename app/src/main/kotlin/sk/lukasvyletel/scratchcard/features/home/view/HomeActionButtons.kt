@@ -10,6 +10,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,6 +32,7 @@ fun HomeActionButtons(
     activationEnabled: Boolean,
     onScratchClick: () -> Unit,
     onActivationClick: () -> Unit,
+    onResetClick: () -> Unit,
 ) {
     Text(
         text = stringResource(R.string.home_next_step),
@@ -83,5 +85,16 @@ fun HomeActionButtons(
         ) {
             ActionContent(stringResource(R.string.home_activation_action), disabledContentColor)
         }
+    }
+    ResetCardButton(onClick = onResetClick)
+}
+
+@Composable
+private fun ResetCardButton(onClick: () -> Unit) {
+    TextButton(
+        onClick = onClick,
+        modifier = Modifier.fillMaxWidth().padding(top = 8.dp).testTag("resetCardButton"),
+    ) {
+        Text(text = stringResource(R.string.home_reset_action), color = colorResource(R.color.scratch_muted_ink))
     }
 }
