@@ -2,6 +2,7 @@ package sk.lukasvyletel.scratchcard.core.dependency_injection
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import sk.lukasvyletel.scratchcard.features.activate.dependency_injection.ActivateCardModule
 import sk.lukasvyletel.scratchcard.features.card.ScratchCardCodeGenerator
 import sk.lukasvyletel.scratchcard.features.card.dependency_injection.ScratchCardModule
 import kotlin.uuid.Uuid
@@ -17,5 +18,9 @@ class SharedInjector(
             scratchCardCodeGenerator = scratchCardCodeGenerator,
             cpuBoundCoroutineDispatcher = cpuBoundCoroutineDispatcher,
         )
+    }
+
+    override val activateCardModule: ActivateCardModule by lazy {
+        ActivateCardModule(scratchCardRepository = scratchCardModule.scratchCardRepository)
     }
 }

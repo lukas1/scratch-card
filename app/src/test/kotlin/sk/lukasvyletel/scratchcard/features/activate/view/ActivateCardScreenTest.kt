@@ -10,7 +10,12 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.test.core.app.ApplicationProvider
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -21,13 +26,19 @@ import sk.lukasvyletel.scratchcard.ActivationRoute
 import sk.lukasvyletel.scratchcard.HomeRoute
 import sk.lukasvyletel.scratchcard.R
 import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
+import sk.lukasvyletel.scratchcard.features.card.ScratchCardState
+import sk.lukasvyletel.scratchcard.test.MainDispatcherRule
 import sk.lukasvyletel.scratchcard.test.MockInjector
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Build.VERSION_CODES.VANILLA_ICE_CREAM])
+@OptIn(ExperimentalCoroutinesApi::class)
 class ActivateCardScreenTest {
     @get:Rule
     val compose = createComposeRule()
+
+    @get:Rule
+    val mainDispatcherRule = MainDispatcherRule()
 
     @Test
     fun `GIVEN activation screen THEN localized title and description are shown`() {
@@ -62,16 +73,32 @@ class ActivateCardScreenTest {
     }
 
     @Test
-    fun `GIVEN a revealed code WHEN activation screen opens THEN code and action are shown`() {
-        val code = "123e4567-e89b-12d3-a456-426614174000"
+    fun `GIVEN a scratched card WHEN activation screen opens THEN code and action are shown`() = runTest {
+        val injector = MockInjector(
+            cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
+        )
+        val repository = injector.scratchCardModule.scratchCardRepository
+        repository.scratchCard()
+        advanceUntilIdle()
+
         compose.setContent {
-            CompositionLocalProvider(LocalInjector provides MockInjector()) {
-                ActivateCardScreen(code = code)
+            CompositionLocalProvider(LocalInjector provides injector) {
+                ActivateCardScreen()
             }
         }
 
-        compose.onNodeWithTag("activationCode").assertTextEquals(code)
+        compose.onNodeWithTag("activationCode").assertTextEquals(MockInjector.TEST_SCRATCH_CODE)
         compose.onNodeWithTag("activateCardButton").assertHasClickAction()
+
+        val activateAction = compose.onNodeWithTag("activateCardButton")
+            .fetchSemanticsNode().config[SemanticsActions.OnClick]
+        compose.runOnIdle { activateAction.action?.invoke() }
+        compose.runOnIdle {
+            assertEquals(
+                ScratchCardState.Activated(MockInjector.TEST_SCRATCH_CODE),
+                repository.cardStateFlow.value,
+            )
+        }
     }
 
     @Test
@@ -79,7 +106,11 @@ class ActivateCardScreenTest {
         var dismissed = false
         compose.setContent {
             CompositionLocalProvider(LocalInjector provides MockInjector()) {
-                ActivateCardScreen(showError = true, onDismissError = { dismissed = true })
+                ActivateCardScreenContent(
+                    code = null,
+                    showError = true,
+                    onDismissError = { dismissed = true },
+                )
             }
         }
 
@@ -95,7 +126,7 @@ class ActivateCardScreenTest {
     fun `GIVEN activation in progress THEN activation action is unavailable`() {
         compose.setContent {
             CompositionLocalProvider(LocalInjector provides MockInjector()) {
-                ActivateCardScreen(isActivating = true)
+                ActivateCardScreenContent(code = null, isActivating = true)
             }
         }
 

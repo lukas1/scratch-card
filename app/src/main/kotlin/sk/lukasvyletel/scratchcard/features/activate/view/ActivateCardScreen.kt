@@ -14,6 +14,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -25,18 +26,35 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import sk.lukasvyletel.scratchcard.R
 import sk.lukasvyletel.scratchcard.core.annotations.ExcludeFromCoverage
+import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
+import sk.lukasvyletel.scratchcard.features.activate.view.preview.ActivateCardScreenPreviewContent
+import sk.lukasvyletel.scratchcard.features.activate.viewmodel.ActivateCardViewModel
+import sk.lukasvyletel.scratchcard.features.activate.viewmodel.ActivateCardViewModelFactory
 import sk.lukasvyletel.scratchcard.shared.ui.DestinationAction
 import sk.lukasvyletel.scratchcard.shared.ui.DestinationScreen
-import sk.lukasvyletel.scratchcard.shared.ui.SectionLabel
 import sk.lukasvyletel.scratchcard.shared.ui.ScratchCardCodePanel
 import sk.lukasvyletel.scratchcard.shared.ui.ScratchCardFrame
-import sk.lukasvyletel.scratchcard.features.activate.view.preview.ActivateCardScreenPreviewContent
+import sk.lukasvyletel.scratchcard.shared.ui.SectionLabel
 
 @Composable
-fun ActivateCardScreen(
-    code: String? = null,
+fun ActivateCardScreen() {
+    val activateCardViewModel: ActivateCardViewModel = viewModel(
+        factory = ActivateCardViewModelFactory(LocalInjector.current.activateCardModule),
+    )
+    val code by activateCardViewModel.code.collectAsStateWithLifecycle()
+    ActivateCardScreenContent(
+        code = code,
+        onActivateClick = activateCardViewModel::activateCard,
+    )
+}
+
+@Composable
+fun ActivateCardScreenContent(
+    code: String?,
     isActivating: Boolean = false,
     showError: Boolean = false,
     onActivateClick: () -> Unit = {},
