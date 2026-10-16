@@ -6,13 +6,17 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.test.core.app.ApplicationProvider
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -25,9 +29,11 @@ import sk.lukasvyletel.scratchcard.ActivationRoute
 import sk.lukasvyletel.scratchcard.HomeRoute
 import sk.lukasvyletel.scratchcard.R
 import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
+import sk.lukasvyletel.scratchcard.features.activate.viewmodel.ActivationButtonState
 import sk.lukasvyletel.scratchcard.features.card.ScratchCardState
 import sk.lukasvyletel.scratchcard.test.MainDispatcherRule
 import sk.lukasvyletel.scratchcard.test.MockInjector
+import sk.lukasvyletel.scratchcard.test.QueuedCoroutineDispatcher
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Build.VERSION_CODES.VANILLA_ICE_CREAM])
@@ -90,30 +96,52 @@ class ActivateCardScreenTest {
     }
 
     @Test
-    fun `GIVEN a scratched card WHEN activation button is pressed THEN card is activated`() = runTest {
-        val injector = MockInjector(
-            cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
-            activationCoroutineScope = backgroundScope,
-        )
-        val repository = injector.scratchCardModule.scratchCardRepository
-        repository.scratchCard()
-        runCurrent()
+    fun `GIVEN a scratched card WHEN activation button is pressed THEN button is disabled while activation runs`() =
+        runTest {
+            val activationDispatcher = QueuedCoroutineDispatcher()
+            val injector = MockInjector(
+                cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
+                activationCoroutineScope = CoroutineScope(
+                    backgroundScope.coroutineContext + activationDispatcher,
+                ),
+            )
+            val repository = injector.scratchCardModule.scratchCardRepository
+            repository.scratchCard()
+            advanceUntilIdle()
+            assertEquals(
+                ScratchCardState.Scratched(MockInjector.TEST_SCRATCH_CODE),
+                repository.cardStateFlow.value,
+            )
 
-        compose.setContent {
-            CompositionLocalProvider(LocalInjector provides injector) {
-                ActivateCardScreen()
+            compose.setContent {
+                CompositionLocalProvider(LocalInjector provides injector) {
+                    ActivateCardScreen()
+                }
             }
+
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            compose.onNodeWithTag("activateCardButton")
+                .performScrollTo()
+                .performClick()
+            runCurrent()
+            mainDispatcherRule.dispatcher.scheduler.advanceUntilIdle()
+            compose.waitForIdle()
+
+            compose.onNodeWithTag("activateCardButton")
+                .assertTextContains(context.getString(R.string.activation_activating_action))
+                .assertIsNotEnabled()
+
+            activationDispatcher.runQueuedTasks()
+            runCurrent()
+            mainDispatcherRule.dispatcher.scheduler.advanceUntilIdle()
+            compose.waitForIdle()
+
+            assertEquals(
+                ScratchCardState.Activated(MockInjector.TEST_SCRATCH_CODE),
+                repository.cardStateFlow.value,
+            )
+            compose.onNodeWithTag("activateCardButton").assertIsNotEnabled()
         }
-
-        compose.onNodeWithTag("activateCardButton")
-            .performClick()
-        runCurrent()
-
-        assertEquals(
-            ScratchCardState.Activated(MockInjector.TEST_SCRATCH_CODE),
-            repository.cardStateFlow.value,
-        )
-    }
 
     @Test
     fun `GIVEN activation error WHEN dismissed THEN dismissal is requested`() {
@@ -122,6 +150,7 @@ class ActivateCardScreenTest {
             CompositionLocalProvider(LocalInjector provides MockInjector()) {
                 ActivateCardScreenContent(
                     code = null,
+                    activationButtonState = ActivationButtonState.READY,
                     showError = true,
                     onDismissError = { dismissed = true },
                 )
@@ -134,16 +163,5 @@ class ActivateCardScreenTest {
             .assertTextEquals(context.getString(R.string.activation_error_dismiss))
             .performClick()
         compose.runOnIdle { assertEquals(true, dismissed) }
-    }
-
-    @Test
-    fun `GIVEN activation in progress THEN activation action is unavailable`() {
-        compose.setContent {
-            CompositionLocalProvider(LocalInjector provides MockInjector()) {
-                ActivateCardScreenContent(code = null, isActivating = true)
-            }
-        }
-
-        compose.onNodeWithTag("activateCardButton").assertIsNotEnabled()
     }
 }

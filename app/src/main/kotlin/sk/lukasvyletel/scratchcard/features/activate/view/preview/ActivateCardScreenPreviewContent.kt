@@ -9,6 +9,7 @@ import sk.lukasvyletel.scratchcard.core.annotations.ExcludeFromCoverage
 import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
 import sk.lukasvyletel.scratchcard.core.dependency_injection.PreviewInjector
 import sk.lukasvyletel.scratchcard.features.activate.view.ActivateCardScreenContent
+import sk.lukasvyletel.scratchcard.features.activate.viewmodel.ActivationButtonState
 
 @Preview
 @Composable
@@ -18,6 +19,14 @@ fun ActivateCardScreenPreviewContent(
     showError: Boolean = false,
 ) {
     CompositionLocalProvider(LocalInjector provides PreviewInjector()) {
-        ActivateCardScreenContent(code = code, isActivating = isActivating, showError = showError)
+        ActivateCardScreenContent(
+            code = code,
+            activationButtonState = if (isActivating) {
+                ActivationButtonState.ACTIVATING
+            } else {
+                ActivationButtonState.READY
+            },
+            showError = showError,
+        )
     }
 }

@@ -3,8 +3,9 @@ package sk.lukasvyletel.scratchcard.features.card
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,7 +41,7 @@ class ScratchCardRepository(
         }
     }
 
-    fun activateCard(scratchedCard: ScratchCardState.Scratched) {
+    fun activateCard(scratchedCard: ScratchCardState.Scratched): Job =
         activationCoroutineScope.launch {
             activationMutex.withLock {
                 if (_cardStateFlow.value != scratchedCard) return@withLock
@@ -50,5 +51,4 @@ class ScratchCardRepository(
                 }
             }
         }
-    }
 }

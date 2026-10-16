@@ -32,6 +32,7 @@ import sk.lukasvyletel.scratchcard.R
 import sk.lukasvyletel.scratchcard.core.annotations.ExcludeFromCoverage
 import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
 import sk.lukasvyletel.scratchcard.features.activate.view.preview.ActivateCardScreenPreviewContent
+import sk.lukasvyletel.scratchcard.features.activate.viewmodel.ActivationButtonState
 import sk.lukasvyletel.scratchcard.features.activate.viewmodel.ActivateCardViewModel
 import sk.lukasvyletel.scratchcard.features.activate.viewmodel.ActivateCardViewModelFactory
 import sk.lukasvyletel.scratchcard.shared.ui.DestinationAction
@@ -42,12 +43,15 @@ import sk.lukasvyletel.scratchcard.shared.ui.SectionLabel
 
 @Composable
 fun ActivateCardScreen() {
+    val injector = LocalInjector.current
     val activateCardViewModel: ActivateCardViewModel = viewModel(
-        factory = ActivateCardViewModelFactory(LocalInjector.current.activateCardModule),
+        factory = ActivateCardViewModelFactory(injector.activateCardModule),
     )
     val code by activateCardViewModel.code.collectAsStateWithLifecycle()
+    val activationButtonState by activateCardViewModel.activationButtonState.collectAsStateWithLifecycle()
     ActivateCardScreenContent(
         code = code,
+        activationButtonState = activationButtonState,
         onActivateClick = activateCardViewModel::activateCard,
     )
 }
@@ -55,7 +59,7 @@ fun ActivateCardScreen() {
 @Composable
 fun ActivateCardScreenContent(
     code: String?,
-    isActivating: Boolean = false,
+    activationButtonState: ActivationButtonState,
     showError: Boolean = false,
     onActivateClick: () -> Unit = {},
     onDismissError: () -> Unit = {},
@@ -69,11 +73,11 @@ fun ActivateCardScreenContent(
         ActivationCard(code)
         ActivationInstructions()
         DestinationAction(
-            label = if (isActivating) R.string.activation_activating_action else R.string.activation_action,
+            label = activationButtonState.labelResId(),
             tag = "activateCardButton",
             onClick = onActivateClick,
             modifier = Modifier.padding(top = 16.dp),
-            enabled = !isActivating,
+            enabled = activationButtonState.isActionEnabled(),
         )
         Text(
             text = stringResource(R.string.activation_action_hint),
@@ -86,6 +90,18 @@ fun ActivateCardScreenContent(
     if (showError) {
         ActivationErrorDialog(onDismissError)
     }
+}
+
+private fun ActivationButtonState.labelResId(): Int = when (this) {
+    ActivationButtonState.ACTIVATING -> R.string.activation_activating_action
+    ActivationButtonState.READY,
+    ActivationButtonState.ACTIVATED -> R.string.activation_action
+}
+
+private fun ActivationButtonState.isActionEnabled(): Boolean = when (this) {
+    ActivationButtonState.READY -> true
+    ActivationButtonState.ACTIVATING,
+    ActivationButtonState.ACTIVATED -> false
 }
 
 @Composable
