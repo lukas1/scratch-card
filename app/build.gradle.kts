@@ -22,6 +22,7 @@ kover {
         filters {
             excludes {
                 annotatedBy("sk.lukasvyletel.scratchcard.core.annotations.ExcludeFromCoverage")
+                classes("*Preview*")
             }
         }
         variant("debug") {
@@ -32,13 +33,15 @@ kover {
                 includes {
                     packages("sk.lukasvyletel.scratchcard.features")
                     packages("sk.lukasvyletel.scratchcard.core")
+                    packages("sk.lukasvyletel.scratchcard.shared")
                 }
                 excludes {
                     annotatedBy("sk.lukasvyletel.scratchcard.core.annotations.ExcludeFromCoverage")
+                    classes("*Preview*")
                 }
             }
             verify {
-                rule("Features and core line coverage") { minBound(100) }
+                rule("Features, core, and shared line coverage") { minBound(100) }
             }
         }
     }

@@ -75,4 +75,3 @@ private fun HomeScreenScratchedPreview() {
 private fun HomeScreenActivatedPreview() {
     HomeScreenPreviewContent(ScratchCardState.Activated("SC-4829-7316"))
 }
-

@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import sk.lukasvyletel.scratchcard.R
 import sk.lukasvyletel.scratchcard.core.annotations.ExcludeFromCoverage
+import sk.lukasvyletel.scratchcard.shared.ui.preview.ScratchCardPreview
 
 private const val DECORATION_BORDER_ALPHA = 0.12f
 private const val UPPER_CIRCLE_X = 0.95f
@@ -179,12 +180,5 @@ private fun CardFooter() {
 @ExcludeFromCoverage
 @Composable
 private fun ScratchCardFramePreview() {
-    ScratchCardFrame(height = 226.dp, tag = "previewCard") {
-        ScratchCardCodePanel(
-            code = null,
-            height = 108.dp,
-            backgroundColor = R.color.scratch_soft_green,
-            tag = "previewCode",
-        )
-    }
+    ScratchCardPreview()
 }
