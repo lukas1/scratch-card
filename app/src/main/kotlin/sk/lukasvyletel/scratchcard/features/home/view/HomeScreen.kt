@@ -1,5 +1,6 @@
 package sk.lukasvyletel.scratchcard.features.home.view
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,19 +16,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.collect
 import sk.lukasvyletel.scratchcard.ActivationRoute
 import sk.lukasvyletel.scratchcard.R
 import sk.lukasvyletel.scratchcard.ScratchRoute
 import sk.lukasvyletel.scratchcard.core.annotations.ExcludeFromCoverage
 import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
+import sk.lukasvyletel.scratchcard.features.card.ActivationError
+import sk.lukasvyletel.scratchcard.features.card.ScratchCardRepository
 import sk.lukasvyletel.scratchcard.features.card.ScratchCardState
 import sk.lukasvyletel.scratchcard.features.home.view.preview.HomeScreenPreviewContent
 
@@ -43,18 +46,7 @@ fun HomeScreen(cardState: ScratchCardState) {
     val injector = LocalInjector.current
     val navigation = injector.globalModule.navigation
     val scratchCardRepository = injector.scratchCardModule.scratchCardRepository
-    val showActivationError by scratchCardRepository.activationErrorFlow.collectAsStateWithLifecycle()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val activationErrorMessage = stringResource(R.string.activation_error_body)
-
-    LaunchedEffect(scratchCardRepository, snackbarHostState, activationErrorMessage) {
-        snapshotFlow { showActivationError }
-            .filter { it }
-            .collect {
-                scratchCardRepository.dismissActivationError()
-                snackbarHostState.showSnackbar(activationErrorMessage)
-            }
-    }
+    val snackbarHostState = rememberHomeSnackbarHostState(scratchCardRepository)
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -85,6 +77,31 @@ fun HomeScreen(cardState: ScratchCardState) {
             )
         }
     }
+}
+
+@Composable
+private fun rememberHomeSnackbarHostState(
+    scratchCardRepository: ScratchCardRepository,
+): SnackbarHostState {
+    val resources = LocalResources.current
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(scratchCardRepository, snackbarHostState, resources) {
+        scratchCardRepository.activationErrorFlow
+            .filterNotNull()
+            .collect { error ->
+                scratchCardRepository.dismissActivationError()
+                snackbarHostState.showSnackbar(resources.getString(error.message()))
+            }
+    }
+
+    return snackbarHostState
+}
+
+@StringRes
+private fun ActivationError.message(): Int = when (this) {
+    ActivationError.ACTIVATION_FAILED -> R.string.activation_failed_error_body
+    ActivationError.UNEXPECTED_ERROR -> R.string.activation_unexpected_error_body
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFFF7F5EF, widthDp = 380)

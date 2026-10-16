@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import sk.lukasvyletel.scratchcard.core.coroutines.WHILE_SUBSCRIBED_STOP_TIMEOUT_FOR_CONFIGURATION_CHANGES_MILLIS
 import sk.lukasvyletel.scratchcard.features.card.ScratchCardRepository
+import sk.lukasvyletel.scratchcard.features.card.ActivationError
 import sk.lukasvyletel.scratchcard.features.card.ScratchCardState
 
 class ActivateCardViewModel(
@@ -19,7 +20,7 @@ class ActivateCardViewModel(
         buttonStateFor(scratchCardRepository.cardStateFlow.value),
     )
     val activationButtonState: StateFlow<ActivationButtonState> = _activationButtonState.asStateFlow()
-    val showActivationError: StateFlow<Boolean> = scratchCardRepository.activationErrorFlow
+    val activationError: StateFlow<ActivationError?> = scratchCardRepository.activationErrorFlow
 
     val code: StateFlow<String?> = scratchCardRepository.cardStateFlow
         .map { cardState -> cardState.codeOrNull() }

@@ -35,6 +35,7 @@ import sk.lukasvyletel.scratchcard.features.activate.view.preview.ActivateCardSc
 import sk.lukasvyletel.scratchcard.features.activate.viewmodel.ActivationButtonState
 import sk.lukasvyletel.scratchcard.features.activate.viewmodel.ActivateCardViewModel
 import sk.lukasvyletel.scratchcard.features.activate.viewmodel.ActivateCardViewModelFactory
+import sk.lukasvyletel.scratchcard.features.card.ActivationError
 import sk.lukasvyletel.scratchcard.shared.ui.DestinationAction
 import sk.lukasvyletel.scratchcard.shared.ui.DestinationScreen
 import sk.lukasvyletel.scratchcard.shared.ui.ScratchCardCodePanel
@@ -49,11 +50,11 @@ fun ActivateCardScreen() {
     )
     val code by activateCardViewModel.code.collectAsStateWithLifecycle()
     val activationButtonState by activateCardViewModel.activationButtonState.collectAsStateWithLifecycle()
-    val showError by activateCardViewModel.showActivationError.collectAsStateWithLifecycle()
+    val activationError by activateCardViewModel.activationError.collectAsStateWithLifecycle()
     ActivateCardScreenContent(
         code = code,
         activationButtonState = activationButtonState,
-        showError = showError,
+        activationError = activationError,
         onActivateClick = activateCardViewModel::activateCard,
         onDismissError = activateCardViewModel::dismissActivationError,
     )
@@ -63,7 +64,7 @@ fun ActivateCardScreen() {
 fun ActivateCardScreenContent(
     code: String?,
     activationButtonState: ActivationButtonState,
-    showError: Boolean = false,
+    activationError: ActivationError? = null,
     onActivateClick: () -> Unit = {},
     onDismissError: () -> Unit = {},
 ) {
@@ -90,8 +91,8 @@ fun ActivateCardScreenContent(
             textAlign = TextAlign.Center,
         )
     }
-    if (showError) {
-        ActivationErrorDialog(onDismissError)
+    if (activationError != null) {
+        ActivationErrorDialog(activationError, onDismissError)
     }
 }
 
@@ -155,7 +156,7 @@ private fun ActivationInstructions() {
 }
 
 @Composable
-private fun ActivationErrorDialog(onDismiss: () -> Unit) {
+private fun ActivationErrorDialog(activationError: ActivationError, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         modifier = Modifier.testTag("activationErrorDialog"),
@@ -172,7 +173,7 @@ private fun ActivationErrorDialog(onDismiss: () -> Unit) {
         },
         text = {
             Text(
-                text = stringResource(R.string.activation_error_body),
+                text = stringResource(activationError.messageResId()),
                 color = colorResource(R.color.scratch_muted_ink),
                 fontSize = 15.sp,
                 lineHeight = 22.sp,
@@ -184,6 +185,11 @@ private fun ActivationErrorDialog(onDismiss: () -> Unit) {
             }
         },
     )
+}
+
+private fun ActivationError.messageResId(): Int = when (this) {
+    ActivationError.ACTIVATION_FAILED -> R.string.activation_failed_error_body
+    ActivationError.UNEXPECTED_ERROR -> R.string.activation_unexpected_error_body
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFFF7F5EF, widthDp = 380)
@@ -218,27 +224,37 @@ private fun ActivateCardScreenReadyWhileActivatingPreview() {
 @ExcludeFromCoverage
 @Composable
 private fun ActivateCardScreenPendingWithErrorPreview() {
-    ActivateCardScreenPreviewContent(showError = true)
+    ActivateCardScreenPreviewContent(activationError = ActivationError.ACTIVATION_FAILED)
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFFF7F5EF, widthDp = 380)
 @ExcludeFromCoverage
 @Composable
 private fun ActivateCardScreenPendingWhileActivatingWithErrorPreview() {
-    ActivateCardScreenPreviewContent(isActivating = true, showError = true)
+    ActivateCardScreenPreviewContent(
+        isActivating = true,
+        activationError = ActivationError.UNEXPECTED_ERROR,
+    )
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFFF7F5EF, widthDp = 380)
 @ExcludeFromCoverage
 @Composable
 private fun ActivateCardScreenReadyWithErrorPreview() {
-    ActivateCardScreenPreviewContent(code = "SC-4829-7316", showError = true)
+    ActivateCardScreenPreviewContent(
+        code = "SC-4829-7316",
+        activationError = ActivationError.ACTIVATION_FAILED,
+    )
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFFF7F5EF, widthDp = 380)
 @ExcludeFromCoverage
 @Composable
 private fun ActivateCardScreenReadyWhileActivatingWithErrorPreview() {
-    ActivateCardScreenPreviewContent(code = "SC-4829-7316", isActivating = true, showError = true)
+    ActivateCardScreenPreviewContent(
+        code = "SC-4829-7316",
+        isActivating = true,
+        activationError = ActivationError.UNEXPECTED_ERROR,
+    )
 }
 

@@ -10,13 +10,14 @@ import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
 import sk.lukasvyletel.scratchcard.core.dependency_injection.PreviewInjector
 import sk.lukasvyletel.scratchcard.features.activate.view.ActivateCardScreenContent
 import sk.lukasvyletel.scratchcard.features.activate.viewmodel.ActivationButtonState
+import sk.lukasvyletel.scratchcard.features.card.ActivationError
 
 @Preview
 @Composable
 fun ActivateCardScreenPreviewContent(
     code: String? = null,
     isActivating: Boolean = false,
-    showError: Boolean = false,
+    activationError: ActivationError? = null,
 ) {
     CompositionLocalProvider(LocalInjector provides PreviewInjector()) {
         ActivateCardScreenContent(
@@ -26,7 +27,7 @@ fun ActivateCardScreenPreviewContent(
             } else {
                 ActivationButtonState.READY
             },
-            showError = showError,
+            activationError = activationError,
         )
     }
 }

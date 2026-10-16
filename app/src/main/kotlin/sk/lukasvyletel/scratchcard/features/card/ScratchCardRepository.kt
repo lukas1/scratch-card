@@ -17,6 +17,11 @@ import kotlin.time.Duration.Companion.milliseconds
 
 private const val SCRATCH_CARD_DELAY_MILLIS = 2_000L
 
+enum class ActivationError {
+    ACTIVATION_FAILED,
+    UNEXPECTED_ERROR,
+}
+
 class ScratchCardRepository(
     private val scratchCardCodeGenerator: ScratchCardCodeGenerator,
     private val delayFunction: DelayFunction,
@@ -28,8 +33,8 @@ class ScratchCardRepository(
         ScratchCardState.Unscratched
     )
     val cardStateFlow: StateFlow<ScratchCardState> = _cardStateFlow.asStateFlow()
-    private val _activationErrorFlow = MutableStateFlow(false)
-    val activationErrorFlow: StateFlow<Boolean> = _activationErrorFlow.asStateFlow()
+    private val _activationErrorFlow = MutableStateFlow<ActivationError?>(null)
+    val activationErrorFlow: StateFlow<ActivationError?> = _activationErrorFlow.asStateFlow()
     private val scratchMutex = Mutex()
     private val activationMutex = Mutex()
 
@@ -50,7 +55,7 @@ class ScratchCardRepository(
             activationMutex.withLock {
                 if (_cardStateFlow.value != scratchedCard) return@withLock
 
-                _activationErrorFlow.value = false
+                _activationErrorFlow.value = null
                 scratchCardApi.activateCard(scratchedCard.code).fold(
                     onSuccess = { isActivated ->
                         if (isActivated) {
@@ -58,15 +63,15 @@ class ScratchCardRepository(
                                 ScratchCardState.Activated(code = scratchedCard.code)
                             }
                         } else {
-                            _activationErrorFlow.value = true
+                            _activationErrorFlow.value = ActivationError.ACTIVATION_FAILED
                         }
                     },
-                    onFailure = { _activationErrorFlow.value = true },
+                    onFailure = { _activationErrorFlow.value = ActivationError.UNEXPECTED_ERROR },
                 )
             }
         }
 
     fun dismissActivationError() {
-        _activationErrorFlow.value = false
+        _activationErrorFlow.value = null
     }
 }

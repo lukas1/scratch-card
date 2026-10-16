@@ -46,7 +46,8 @@
     <string name="activation_activated_action">Your card is already activated</string>
     <string name="activation_action_hint">Your card will be ready once activation succeeds.</string>
     <string name="activation_error_title">Couldn\'t activate</string>
-    <string name="activation_error_body">This card couldn\'t be activated right now. Please try again.</string>
+    <string name="activation_failed_error_body">Activation has failed. Try again later.</string>
+    <string name="activation_unexpected_error_body">An unexpected error occurred while activating your card. Please try again.</string>
     <string name="activation_error_dismiss">Got it</string>
     <string name="navigate_back">Back</string>
 </resources>

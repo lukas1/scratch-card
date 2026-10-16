@@ -10,6 +10,7 @@ import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.test.core.app.ApplicationProvider
@@ -159,15 +160,16 @@ class ActivateCardScreenTest {
 
         val context = ApplicationProvider.getApplicationContext<Context>()
         compose.onNodeWithTag("activationErrorDialog").assertIsDisplayed()
+        compose.onNodeWithText(context.getString(R.string.activation_failed_error_body)).assertIsDisplayed()
         compose.onNodeWithTag("activationErrorDismissButton")
             .assertTextEquals(context.getString(R.string.activation_error_dismiss))
             .performClick()
         compose.onNodeWithTag("activationErrorDialog").assertDoesNotExist()
-        assertEquals(false, repository.activationErrorFlow.value)
+        assertEquals(null, repository.activationErrorFlow.value)
     }
 
     @Test
-    fun `GIVEN version request fails WHEN activation completes THEN error is shown`() = runTest {
+    fun `GIVEN version request fails WHEN activation completes THEN unexpected error is shown`() = runTest {
         val injector = MockInjector(
             cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
             activationCoroutineScope = backgroundScope,
@@ -181,6 +183,8 @@ class ActivateCardScreenTest {
         advanceUntilIdle()
         compose.waitForIdle()
 
+        val context = ApplicationProvider.getApplicationContext<Context>()
         compose.onNodeWithTag("activationErrorDialog").assertIsDisplayed()
+        compose.onNodeWithText(context.getString(R.string.activation_unexpected_error_body)).assertIsDisplayed()
     }
 }

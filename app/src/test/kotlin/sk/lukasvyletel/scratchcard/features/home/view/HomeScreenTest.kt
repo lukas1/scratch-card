@@ -27,6 +27,8 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 import sk.lukasvyletel.scratchcard.features.card.api.VersionService
+import sk.lukasvyletel.scratchcard.features.card.api.ActivationVersion
+import sk.lukasvyletel.scratchcard.features.card.api.ScratchCardApi
 import sk.lukasvyletel.scratchcard.ActivationRoute
 import sk.lukasvyletel.scratchcard.HomeRoute
 import sk.lukasvyletel.scratchcard.R
@@ -123,7 +125,29 @@ class HomeScreenTest {
         compose.waitForIdle()
 
         val context = ApplicationProvider.getApplicationContext<Context>()
-        compose.onNodeWithText(context.getString(R.string.activation_error_body)).assertIsDisplayed()
+        compose.onNodeWithText(context.getString(R.string.activation_unexpected_error_body)).assertIsDisplayed()
+    }
+
+    @Test
+    fun `GIVEN home is visible WHEN card version is too low THEN activation failure snackbar is shown`() = runTest {
+        val testInjector = MockInjector(
+            cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
+            activationCoroutineScope = backgroundScope,
+            versionService = VersionService {
+                ActivationVersion(ScratchCardApi.ACTIVATION_VERSION_THRESHOLD.toString())
+            },
+        )
+        val repository = testInjector.scratchCardModule.scratchCardRepository
+        repository.scratchCard()
+        advanceUntilIdle()
+        setupView(testInjector)
+
+        repository.activateCard(ScratchCardState.Scratched(MockInjector.TEST_SCRATCH_CODE))
+        runCurrent()
+        compose.waitForIdle()
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        compose.onNodeWithText(context.getString(R.string.activation_failed_error_body)).assertIsDisplayed()
     }
 
     @Test
