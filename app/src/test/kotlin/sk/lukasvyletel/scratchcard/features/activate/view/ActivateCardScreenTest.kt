@@ -134,7 +134,9 @@ class ActivateCardScreenTest {
                 ScratchCardState.Activated(MockInjector.TEST_SCRATCH_CODE),
                 repository.cardStateFlow.value,
             )
-            compose.onNodeWithTag("activateCardButton").assertIsNotEnabled()
+            compose.onNodeWithTag("activateCardButton")
+                .assertTextContains(context.getString(R.string.activation_activated_action))
+                .assertIsNotEnabled()
         }
 
     @Test

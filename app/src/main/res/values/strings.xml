@@ -43,6 +43,7 @@
     <string name="activation_instruction_body">Activate your card with the code you revealed.</string>
     <string name="activation_action">Activate my card</string>
     <string name="activation_activating_action">Activating your card…</string>
+    <string name="activation_activated_action">Your card is already activated</string>
     <string name="activation_action_hint">Your card will be ready once activation succeeds.</string>
     <string name="activation_error_title">Couldn\'t activate</string>
     <string name="activation_error_body">This card couldn\'t be activated right now. Please try again.</string>

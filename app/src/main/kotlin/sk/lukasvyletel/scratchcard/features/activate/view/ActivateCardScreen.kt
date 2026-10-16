@@ -97,8 +97,8 @@ fun ActivateCardScreenContent(
 
 private fun ActivationButtonState.labelResId(): Int = when (this) {
     ActivationButtonState.ACTIVATING -> R.string.activation_activating_action
-    ActivationButtonState.READY,
-    ActivationButtonState.ACTIVATED -> R.string.activation_action
+    ActivationButtonState.READY -> R.string.activation_action
+    ActivationButtonState.ACTIVATED -> R.string.activation_activated_action
 }
 
 private fun ActivationButtonState.isActionEnabled(): Boolean = when (this) {
