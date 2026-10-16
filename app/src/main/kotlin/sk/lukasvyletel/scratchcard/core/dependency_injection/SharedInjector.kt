@@ -7,7 +7,7 @@ import kotlinx.coroutines.SupervisorJob
 import sk.lukasvyletel.scratchcard.features.card.api.VersionService
 import sk.lukasvyletel.scratchcard.features.activate.dependency_injection.ActivateCardModule
 import sk.lukasvyletel.scratchcard.core.coroutines.DelayFunction
-import sk.lukasvyletel.scratchcard.features.card.repository.ScratchCardCodeGenerator
+import sk.lukasvyletel.scratchcard.features.card.api.ScratchCardCodeGenerator
 import sk.lukasvyletel.scratchcard.core.coroutines.coroutineDelay
 import sk.lukasvyletel.scratchcard.features.card.dependency_injection.ScratchCardModule
 import kotlin.uuid.Uuid

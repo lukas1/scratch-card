@@ -1,8 +1,6 @@
 package sk.lukasvyletel.scratchcard.features.card.repository
 
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,21 +9,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
-import sk.lukasvyletel.scratchcard.core.coroutines.DelayFunction
+import sk.lukasvyletel.scratchcard.features.card.api.CardScratcher
 import sk.lukasvyletel.scratchcard.features.card.api.ScratchCardApi
 import sk.lukasvyletel.scratchcard.features.card.model.ActivationError
 import sk.lukasvyletel.scratchcard.features.card.model.ScratchCardState
-import kotlin.time.Duration.Companion.milliseconds
-
-private const val SCRATCH_CARD_DELAY_MILLIS = 2_000L
 
 class ScratchCardRepository(
-    private val scratchCardCodeGenerator: ScratchCardCodeGenerator,
-    private val delayFunction: DelayFunction,
-    private val cpuBoundCoroutineDispatcher: CoroutineDispatcher = Dispatchers.Default,
     private val activationCoroutineScope: CoroutineScope,
     private val scratchCardApi: ScratchCardApi,
+    private val cardScratcher: CardScratcher,
 ) {
     private val _cardStateFlow: MutableStateFlow<ScratchCardState> = MutableStateFlow(
         ScratchCardState.Unscratched
@@ -36,15 +28,11 @@ class ScratchCardRepository(
     private val scratchMutex = Mutex()
     private val activationMutex = Mutex()
 
-    // Simulates a CPU-bound operation that takes time to complete.
-    // The assignment mentions this should be a heavy operation
-    // This code interprets the assignment that it means the code is CPU heavy
-    suspend fun scratchCard() = withContext(cpuBoundCoroutineDispatcher) {
+    suspend fun scratchCard() {
         scratchMutex.withLock {
             if (_cardStateFlow.value != ScratchCardState.Unscratched) return@withLock
 
-            delayFunction(SCRATCH_CARD_DELAY_MILLIS.milliseconds)
-            _cardStateFlow.emit(ScratchCardState.Scratched(code = scratchCardCodeGenerator()))
+            _cardStateFlow.emit(ScratchCardState.Scratched(code = cardScratcher.scratch()))
         }
     }
 
