@@ -19,6 +19,7 @@ class ActivateCardViewModel(
         buttonStateFor(scratchCardRepository.cardStateFlow.value),
     )
     val activationButtonState: StateFlow<ActivationButtonState> = _activationButtonState.asStateFlow()
+    val showActivationError: StateFlow<Boolean> = scratchCardRepository.activationErrorFlow
 
     val code: StateFlow<String?> = scratchCardRepository.cardStateFlow
         .map { cardState -> cardState.codeOrNull() }
@@ -40,6 +41,10 @@ class ActivateCardViewModel(
         scratchCardRepository.activateCard(scratchedCard).invokeOnCompletion {
             _activationButtonState.value = buttonStateFor(scratchCardRepository.cardStateFlow.value)
         }
+    }
+
+    fun dismissActivationError() {
+        scratchCardRepository.dismissActivationError()
     }
 }
 

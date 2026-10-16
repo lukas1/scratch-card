@@ -49,10 +49,13 @@ fun ActivateCardScreen() {
     )
     val code by activateCardViewModel.code.collectAsStateWithLifecycle()
     val activationButtonState by activateCardViewModel.activationButtonState.collectAsStateWithLifecycle()
+    val showError by activateCardViewModel.showActivationError.collectAsStateWithLifecycle()
     ActivateCardScreenContent(
         code = code,
         activationButtonState = activationButtonState,
+        showError = showError,
         onActivateClick = activateCardViewModel::activateCard,
+        onDismissError = activateCardViewModel::dismissActivationError,
     )
 }
 

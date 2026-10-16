@@ -1,5 +1,6 @@
 package sk.lukasvyletel.scratchcard.features.card
 
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -9,17 +10,31 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.cancel
+import sk.lukasvyletel.scratchcard.features.card.api.ActivationVersion
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import sk.lukasvyletel.scratchcard.features.card.dependency_injection.ScratchCardModule
 import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ScratchCardRepositoryTest {
+
+    private fun createRepository(
+        scratchCardCodeGenerator: ScratchCardCodeGenerator,
+        cpuBoundCoroutineDispatcher: CoroutineDispatcher,
+        activationCoroutineScope: CoroutineScope
+    ): ScratchCardRepository = ScratchCardModule(
+        scratchCardCodeGenerator = scratchCardCodeGenerator,
+        cpuBoundCoroutineDispatcher = cpuBoundCoroutineDispatcher,
+        activationCoroutineScope = activationCoroutineScope,
+        versionService = { ActivationVersion("287028") }
+    ).scratchCardRepository
+
     @Test
     fun `GIVEN two simultaneous scratch requests WHEN scratching completes THEN code is generated once`() =
         runTest {
             var generatedCodeCount = 0
-            val repository = ScratchCardRepository(
+            val repository = createRepository(
                 scratchCardCodeGenerator = {
                     generatedCodeCount += 1
                     "scratch-code"
@@ -27,7 +42,7 @@ class ScratchCardRepositoryTest {
                 cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
                 activationCoroutineScope = CoroutineScope(
                     StandardTestDispatcher(testScheduler) + Job(),
-                ),
+                )
             )
 
             launch { repository.scratchCard() }
@@ -47,10 +62,10 @@ class ScratchCardRepositoryTest {
     fun `GIVEN two simultaneous activation requests WHEN activation completes THEN card is activated once`() =
         runTest {
             val activationScope = CoroutineScope(StandardTestDispatcher(testScheduler) + Job())
-            val repository = ScratchCardRepository(
+            val repository = createRepository(
                 scratchCardCodeGenerator = { "scratch-code" },
                 cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
-                activationCoroutineScope = activationScope,
+                activationCoroutineScope = activationScope
             )
             repository.scratchCard()
             runCurrent()

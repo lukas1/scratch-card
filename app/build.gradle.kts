@@ -107,6 +107,7 @@ dependencies {
 
     // Generic HTTP and JSON infrastructure
     implementation(libs.squareup.okhttp)
+    implementation(libs.squareup.okhttp.mockwebserver)
     implementation(libs.squareup.okhttp.logging.interceptor)
     implementation(libs.squareup.retrofit)
     implementation(libs.squareup.retrofit.converter.kotlinx.serialization)

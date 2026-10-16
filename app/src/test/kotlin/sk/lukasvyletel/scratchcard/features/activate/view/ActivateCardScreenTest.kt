@@ -29,8 +29,10 @@ import sk.lukasvyletel.scratchcard.ActivationRoute
 import sk.lukasvyletel.scratchcard.HomeRoute
 import sk.lukasvyletel.scratchcard.R
 import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
-import sk.lukasvyletel.scratchcard.features.activate.viewmodel.ActivationButtonState
+import sk.lukasvyletel.scratchcard.features.card.api.ActivationVersion
+import sk.lukasvyletel.scratchcard.features.card.api.VersionService
 import sk.lukasvyletel.scratchcard.features.card.ScratchCardState
+import sk.lukasvyletel.scratchcard.features.card.api.ScratchCardApi
 import sk.lukasvyletel.scratchcard.test.MainDispatcherRule
 import sk.lukasvyletel.scratchcard.test.MockInjector
 import sk.lukasvyletel.scratchcard.test.QueuedCoroutineDispatcher
@@ -144,24 +146,55 @@ class ActivateCardScreenTest {
         }
 
     @Test
-    fun `GIVEN activation error WHEN dismissed THEN dismissal is requested`() {
-        var dismissed = false
+    fun `GIVEN version is at threshold WHEN activation completes THEN error is shown`() = runTest {
+        val injector = MockInjector(
+            cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
+            activationCoroutineScope = backgroundScope,
+            versionService = VersionService {
+                ActivationVersion(ScratchCardApi.ACTIVATION_VERSION_THRESHOLD.toString())
+            },
+        )
+        val repository = injector.scratchCardModule.scratchCardRepository
+        repository.scratchCard()
+        advanceUntilIdle()
+
         compose.setContent {
-            CompositionLocalProvider(LocalInjector provides MockInjector()) {
-                ActivateCardScreenContent(
-                    code = null,
-                    activationButtonState = ActivationButtonState.READY,
-                    showError = true,
-                    onDismissError = { dismissed = true },
-                )
+            CompositionLocalProvider(LocalInjector provides injector) {
+                ActivateCardScreen()
             }
         }
+        compose.onNodeWithTag("activateCardButton").performScrollTo().performClick()
+        advanceUntilIdle()
+        compose.waitForIdle()
 
         val context = ApplicationProvider.getApplicationContext<Context>()
         compose.onNodeWithTag("activationErrorDialog").assertIsDisplayed()
         compose.onNodeWithTag("activationErrorDismissButton")
             .assertTextEquals(context.getString(R.string.activation_error_dismiss))
             .performClick()
-        compose.runOnIdle { assertEquals(true, dismissed) }
+        compose.onNodeWithTag("activationErrorDialog").assertDoesNotExist()
+        assertEquals(false, repository.activationErrorFlow.value)
+    }
+
+    @Test
+    fun `GIVEN version request fails WHEN activation completes THEN error is shown`() = runTest {
+        val injector = MockInjector(
+            cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
+            activationCoroutineScope = backgroundScope,
+            versionService = VersionService { throw IllegalStateException("request failed") },
+        )
+        injector.scratchCardModule.scratchCardRepository.scratchCard()
+        advanceUntilIdle()
+
+        compose.setContent {
+            CompositionLocalProvider(LocalInjector provides injector) {
+                ActivateCardScreen()
+            }
+        }
+        compose.onNodeWithTag("activateCardButton").performScrollTo().performClick()
+        advanceUntilIdle()
+        compose.waitForIdle()
+
+        compose.onNodeWithTag("activationErrorDialog").assertIsDisplayed()
     }
 }

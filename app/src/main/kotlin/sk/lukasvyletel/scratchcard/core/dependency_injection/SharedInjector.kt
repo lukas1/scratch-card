@@ -4,12 +4,14 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import sk.lukasvyletel.scratchcard.features.card.api.VersionService
 import sk.lukasvyletel.scratchcard.features.activate.dependency_injection.ActivateCardModule
 import sk.lukasvyletel.scratchcard.features.card.ScratchCardCodeGenerator
 import sk.lukasvyletel.scratchcard.features.card.dependency_injection.ScratchCardModule
 import kotlin.uuid.Uuid
 
 class SharedInjector(
+    private val versionService: VersionService,
     scratchCardCodeGenerator: ScratchCardCodeGenerator = { Uuid.random().toString() },
     cpuBoundCoroutineDispatcher: CoroutineDispatcher = Dispatchers.Default,
     private val activationCoroutineScope: CoroutineScope = CoroutineScope(
@@ -23,6 +25,7 @@ class SharedInjector(
             scratchCardCodeGenerator = scratchCardCodeGenerator,
             cpuBoundCoroutineDispatcher = cpuBoundCoroutineDispatcher,
             activationCoroutineScope = activationCoroutineScope,
+            versionService = versionService,
         )
     }
 
