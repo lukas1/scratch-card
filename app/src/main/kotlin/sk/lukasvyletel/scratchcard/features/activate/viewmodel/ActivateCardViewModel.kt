@@ -6,8 +6,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import sk.lukasvyletel.scratchcard.core.coroutines.WHILE_SUBSCRIBED_STOP_TIMEOUT_FOR_CONFIGURATION_CHANGES_MILLIS
 import sk.lukasvyletel.scratchcard.features.card.repository.ScratchCardRepository
 import sk.lukasvyletel.scratchcard.features.card.model.ActivationError
@@ -17,10 +19,23 @@ class ActivateCardViewModel(
     private val scratchCardRepository: ScratchCardRepository,
 ) : ViewModel() {
     private val _activationButtonState = MutableStateFlow(
-        buttonStateFor(scratchCardRepository.cardStateFlow.value),
+        activationButtonStateFor(
+            scratchCardRepository.cardStateFlow.value,
+            scratchCardRepository.activationInProgressFlow.value,
+        ),
     )
     val activationButtonState: StateFlow<ActivationButtonState> = _activationButtonState.asStateFlow()
     val activationError: StateFlow<ActivationError?> = scratchCardRepository.activationErrorFlow
+
+    init {
+        viewModelScope.launch {
+            combine(
+                scratchCardRepository.cardStateFlow,
+                scratchCardRepository.activationInProgressFlow,
+                ::activationButtonStateFor,
+            ).collect { state -> _activationButtonState.value = state }
+        }
+    }
 
     val code: StateFlow<String?> = scratchCardRepository.cardStateFlow
         .map { cardState -> cardState.codeOrNull() }
@@ -39,9 +54,7 @@ class ActivateCardViewModel(
             ?: return
 
         _activationButtonState.value = ActivationButtonState.ACTIVATING
-        scratchCardRepository.activateCard(scratchedCard).invokeOnCompletion {
-            _activationButtonState.value = buttonStateFor(scratchCardRepository.cardStateFlow.value)
-        }
+        scratchCardRepository.activateCard(scratchedCard)
     }
 
     fun dismissActivationError() {
@@ -53,6 +66,14 @@ private fun buttonStateFor(cardState: ScratchCardState): ActivationButtonState =
     is ScratchCardState.Activated -> ActivationButtonState.ACTIVATED
     is ScratchCardState.Unscratched,
     is ScratchCardState.Scratched -> ActivationButtonState.READY
+}
+
+private fun activationButtonStateFor(
+    cardState: ScratchCardState,
+    isActivationInProgress: Boolean,
+): ActivationButtonState = when {
+    isActivationInProgress -> ActivationButtonState.ACTIVATING
+    else -> buttonStateFor(cardState)
 }
 
 private fun ScratchCardState.codeOrNull(): String? = when (this) {

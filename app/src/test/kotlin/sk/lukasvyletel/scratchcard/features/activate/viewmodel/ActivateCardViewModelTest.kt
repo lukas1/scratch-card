@@ -2,6 +2,7 @@ package sk.lukasvyletel.scratchcard.features.activate.viewmodel
 
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -14,6 +15,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import sk.lukasvyletel.scratchcard.features.card.api.ActivationVersion
 import sk.lukasvyletel.scratchcard.features.card.repository.ScratchCardRepository
 import sk.lukasvyletel.scratchcard.features.card.model.ScratchCardState
 import sk.lukasvyletel.scratchcard.test.MainDispatcherRule
@@ -119,8 +121,38 @@ class ActivateCardViewModelTest {
         )
     }
 
-    private fun createViewModel(injector: MockInjector): ActivateCardViewModel = ViewModelProvider(
-        ViewModelStore(),
+    @Test
+    fun `GIVEN activation continues after leaving screen WHEN screen returns THEN progress is restored`() =
+        runTest {
+        val activationResponse = CompletableDeferred<ActivationVersion>()
+        val injector = MockInjector(
+            cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
+            activationCoroutineScope = backgroundScope,
+            versionService = { activationResponse.await() },
+        )
+        val repository = injector.scratchCardModule.scratchCardRepository
+        completeScratchCard(repository)
+
+        val firstViewModelStore = ViewModelStore()
+        val firstViewModel = createViewModel(injector, firstViewModelStore)
+        firstViewModel.activateCard()
+        runCurrent()
+        firstViewModelStore.clear()
+
+        val returnedViewModel = createViewModel(injector)
+        assertEquals(ActivationButtonState.ACTIVATING, returnedViewModel.activationButtonState.value)
+
+        activationResponse.complete(ActivationVersion("287028"))
+        runCurrent()
+
+        assertEquals(ActivationButtonState.ACTIVATED, returnedViewModel.activationButtonState.value)
+    }
+
+    private fun createViewModel(
+        injector: MockInjector,
+        viewModelStore: ViewModelStore = ViewModelStore(),
+    ): ActivateCardViewModel = ViewModelProvider(
+        viewModelStore,
         ActivateCardViewModelFactory(injector.activateCardModule),
     )[ActivateCardViewModel::class.java]
 

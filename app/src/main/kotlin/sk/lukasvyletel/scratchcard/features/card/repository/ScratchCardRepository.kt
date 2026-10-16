@@ -1,7 +1,6 @@
 package sk.lukasvyletel.scratchcard.features.card.repository
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,6 +23,8 @@ class ScratchCardRepository(
     val cardStateFlow: StateFlow<ScratchCardState> = _cardStateFlow.asStateFlow()
     private val _activationErrorFlow = MutableStateFlow<ActivationError?>(null)
     val activationErrorFlow: StateFlow<ActivationError?> = _activationErrorFlow.asStateFlow()
+    private val _activationInProgressFlow = MutableStateFlow(false)
+    val activationInProgressFlow: StateFlow<Boolean> = _activationInProgressFlow.asStateFlow()
     private val scratchMutex = Mutex()
     private val activationMutex = Mutex()
 
@@ -35,27 +36,34 @@ class ScratchCardRepository(
         }
     }
 
-    fun activateCard(scratchedCard: ScratchCardState.Scratched): Job =
+    fun activateCard(scratchedCard: ScratchCardState.Scratched) {
+        if (!_activationInProgressFlow.compareAndSet(expect = false, update = true)) return
+
         activationCoroutineScope.launch {
-            activationMutex.withLock {
-                if (_cardStateFlow.value != scratchedCard) return@withLock
+            try {
+                activationMutex.withLock {
+                    if (_cardStateFlow.value != scratchedCard) return@withLock
 
-                _activationErrorFlow.value = null
-                val result = scratchCardApi.activateCard(scratchedCard.code)
-                if (_cardStateFlow.value != scratchedCard) return@withLock
+                    _activationErrorFlow.value = null
+                    val result = scratchCardApi.activateCard(scratchedCard.code)
+                    if (_cardStateFlow.value != scratchedCard) return@withLock
 
-                result.fold(
-                    onSuccess = { isActivated ->
-                        if (isActivated) {
-                            _cardStateFlow.value = ScratchCardState.Activated(code = scratchedCard.code)
-                        } else {
-                            _activationErrorFlow.value = ActivationError.ACTIVATION_FAILED
-                        }
-                    },
-                    onFailure = { _activationErrorFlow.value = ActivationError.UNEXPECTED_ERROR },
-                )
+                    result.fold(
+                        onSuccess = { isActivated ->
+                            if (isActivated) {
+                                _cardStateFlow.value = ScratchCardState.Activated(code = scratchedCard.code)
+                            } else {
+                                _activationErrorFlow.value = ActivationError.ACTIVATION_FAILED
+                            }
+                        },
+                        onFailure = { _activationErrorFlow.value = ActivationError.UNEXPECTED_ERROR },
+                    )
+                }
+            } finally {
+                _activationInProgressFlow.value = false
             }
         }
+    }
 
     fun resetCard() {
         _cardStateFlow.value = ScratchCardState.Unscratched
