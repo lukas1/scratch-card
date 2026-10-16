@@ -13,6 +13,7 @@ import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -62,6 +63,7 @@ class HomeScreenTest {
             val code = MockInjector.TEST_SCRATCH_CODE
             val testInjector = MockInjector(
                 cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
+                activationCoroutineScope = backgroundScope,
             )
             testInjector.scratchCardModule.scratchCardRepository.scratchCard()
             advanceUntilIdle()
@@ -76,6 +78,7 @@ class HomeScreenTest {
                     ScratchCardState.Scratched(code = code)
                 )
             }
+            runCurrent()
             compose.onNodeWithTag("cardStatus").assertTextEquals(context.getString(R.string.card_state_activated))
             compose.onNodeWithTag("cardCode").assertTextEquals(code)
         }

@@ -10,11 +10,10 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -73,13 +72,13 @@ class ActivateCardScreenTest {
     }
 
     @Test
-    fun `GIVEN a scratched card WHEN activation screen opens THEN code and action are shown`() = runTest {
+    fun `GIVEN a scratched card THEN activation code is shown`() = runTest {
         val injector = MockInjector(
             cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
+            activationCoroutineScope = backgroundScope,
         )
-        val repository = injector.scratchCardModule.scratchCardRepository
-        repository.scratchCard()
-        advanceUntilIdle()
+        injector.scratchCardModule.scratchCardRepository.scratchCard()
+        runCurrent()
 
         compose.setContent {
             CompositionLocalProvider(LocalInjector provides injector) {
@@ -88,17 +87,32 @@ class ActivateCardScreenTest {
         }
 
         compose.onNodeWithTag("activationCode").assertTextEquals(MockInjector.TEST_SCRATCH_CODE)
-        compose.onNodeWithTag("activateCardButton").assertHasClickAction()
+    }
 
-        val activateAction = compose.onNodeWithTag("activateCardButton")
-            .fetchSemanticsNode().config[SemanticsActions.OnClick]
-        compose.runOnIdle { activateAction.action?.invoke() }
-        compose.runOnIdle {
-            assertEquals(
-                ScratchCardState.Activated(MockInjector.TEST_SCRATCH_CODE),
-                repository.cardStateFlow.value,
-            )
+    @Test
+    fun `GIVEN a scratched card WHEN activation button is pressed THEN card is activated`() = runTest {
+        val injector = MockInjector(
+            cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
+            activationCoroutineScope = backgroundScope,
+        )
+        val repository = injector.scratchCardModule.scratchCardRepository
+        repository.scratchCard()
+        runCurrent()
+
+        compose.setContent {
+            CompositionLocalProvider(LocalInjector provides injector) {
+                ActivateCardScreen()
+            }
         }
+
+        compose.onNodeWithTag("activateCardButton")
+            .performClick()
+        runCurrent()
+
+        assertEquals(
+            ScratchCardState.Activated(MockInjector.TEST_SCRATCH_CODE),
+            repository.cardStateFlow.value,
+        )
     }
 
     @Test

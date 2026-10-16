@@ -1,7 +1,9 @@
 package sk.lukasvyletel.scratchcard.core.dependency_injection
 
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import sk.lukasvyletel.scratchcard.features.activate.dependency_injection.ActivateCardModule
 import sk.lukasvyletel.scratchcard.features.card.ScratchCardCodeGenerator
 import sk.lukasvyletel.scratchcard.features.card.dependency_injection.ScratchCardModule
@@ -10,6 +12,9 @@ import kotlin.uuid.Uuid
 class SharedInjector(
     scratchCardCodeGenerator: ScratchCardCodeGenerator = { Uuid.random().toString() },
     cpuBoundCoroutineDispatcher: CoroutineDispatcher = Dispatchers.Default,
+    private val activationCoroutineScope: CoroutineScope = CoroutineScope(
+        SupervisorJob() + Dispatchers.IO,
+    ),
 ) : Injector {
     override val globalModule: GlobalModule by lazy { GlobalModule() }
 
@@ -17,6 +22,7 @@ class SharedInjector(
         ScratchCardModule(
             scratchCardCodeGenerator = scratchCardCodeGenerator,
             cpuBoundCoroutineDispatcher = cpuBoundCoroutineDispatcher,
+            activationCoroutineScope = activationCoroutineScope,
         )
     }
 

@@ -1,7 +1,9 @@
 package sk.lukasvyletel.scratchcard.features.card
 
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,12 +19,14 @@ private const val SCRATCH_CARD_DELAY_MILLIS = 2_000L
 class ScratchCardRepository(
     private val scratchCardCodeGenerator: ScratchCardCodeGenerator,
     private val cpuBoundCoroutineDispatcher: CoroutineDispatcher = Dispatchers.Default,
+    private val activationCoroutineScope: CoroutineScope,
 ) {
     private val _cardStateFlow: MutableStateFlow<ScratchCardState> = MutableStateFlow(
         ScratchCardState.Unscratched
     )
     val cardStateFlow: StateFlow<ScratchCardState> = _cardStateFlow.asStateFlow()
     private val scratchMutex = Mutex()
+    private val activationMutex = Mutex()
 
     // Simulates a CPU-bound operation that takes time to complete.
     // The assignment mentions this should be a heavy operation
@@ -37,10 +41,14 @@ class ScratchCardRepository(
     }
 
     fun activateCard(scratchedCard: ScratchCardState.Scratched) {
-        _cardStateFlow.update {
-            ScratchCardState.Activated(
-                code = scratchedCard.code
-            )
+        activationCoroutineScope.launch {
+            activationMutex.withLock {
+                if (_cardStateFlow.value != scratchedCard) return@withLock
+
+                _cardStateFlow.update {
+                    ScratchCardState.Activated(code = scratchedCard.code)
+                }
+            }
         }
     }
 }
