@@ -47,13 +47,17 @@ class ActivateCardScreenTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    @Test
-    fun `GIVEN activation screen THEN localized title and description are shown`() {
+    private fun setupView(injector: MockInjector = MockInjector()) {
         compose.setContent {
-            CompositionLocalProvider(LocalInjector provides MockInjector()) {
+            CompositionLocalProvider(LocalInjector provides injector) {
                 ActivateCardScreen()
             }
         }
+    }
+
+    @Test
+    fun `GIVEN activation screen THEN localized title and description are shown`() {
+        setupView()
 
         val context = ApplicationProvider.getApplicationContext<Context>()
         compose.onNodeWithTag("destinationTitle")
@@ -66,11 +70,7 @@ class ActivateCardScreenTest {
     fun `GIVEN activation screen WHEN back is clicked THEN activation route is removed`() {
         val injector = MockInjector()
         injector.globalModule.navigation.navigateTo(ActivationRoute)
-        compose.setContent {
-            CompositionLocalProvider(LocalInjector provides injector) {
-                ActivateCardScreen()
-            }
-        }
+        setupView(injector)
 
         compose.onNodeWithTag("destinationBackButton").assertHasClickAction().performClick()
 
@@ -88,11 +88,7 @@ class ActivateCardScreenTest {
         injector.scratchCardModule.scratchCardRepository.scratchCard()
         runCurrent()
 
-        compose.setContent {
-            CompositionLocalProvider(LocalInjector provides injector) {
-                ActivateCardScreen()
-            }
-        }
+        setupView(injector)
 
         compose.onNodeWithTag("activationCode").assertTextEquals(MockInjector.TEST_SCRATCH_CODE)
     }
@@ -115,11 +111,7 @@ class ActivateCardScreenTest {
                 repository.cardStateFlow.value,
             )
 
-            compose.setContent {
-                CompositionLocalProvider(LocalInjector provides injector) {
-                    ActivateCardScreen()
-                }
-            }
+            setupView(injector)
 
             val context = ApplicationProvider.getApplicationContext<Context>()
             compose.onNodeWithTag("activateCardButton")
@@ -158,11 +150,7 @@ class ActivateCardScreenTest {
         repository.scratchCard()
         advanceUntilIdle()
 
-        compose.setContent {
-            CompositionLocalProvider(LocalInjector provides injector) {
-                ActivateCardScreen()
-            }
-        }
+        setupView(injector)
         compose.onNodeWithTag("activateCardButton").performScrollTo().performClick()
         advanceUntilIdle()
         compose.waitForIdle()
@@ -186,11 +174,7 @@ class ActivateCardScreenTest {
         injector.scratchCardModule.scratchCardRepository.scratchCard()
         advanceUntilIdle()
 
-        compose.setContent {
-            CompositionLocalProvider(LocalInjector provides injector) {
-                ActivateCardScreen()
-            }
-        }
+        setupView(injector)
         compose.onNodeWithTag("activateCardButton").performScrollTo().performClick()
         advanceUntilIdle()
         compose.waitForIdle()
