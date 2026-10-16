@@ -1,5 +1,6 @@
 package sk.lukasvyletel.scratchcard
 
+import android.view.KeyEvent
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
@@ -7,6 +8,10 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
 import org.junit.Assert.assertEquals
@@ -14,7 +19,10 @@ import org.junit.Assert.assertNotNull
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import sk.lukasvyletel.scratchcard.features.card.model.ScratchCardState
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 private const val ACTIVATION_VERSION_THRESHOLD = 277028
 private const val TEST_CARD_CODE = "instrumented-test-code"
@@ -29,6 +37,42 @@ class AppNavigationTest {
 
     private val mockWebServer
         get() = (context.application as ScratchCardTestApplication).mockWebServer
+
+    @Test
+    fun givenScratchInProgress_whenSystemBackIsPressed_thenScratchIsCancelled(): Unit = synchronized(TEST_EXECUTION_LOCK) {
+        resetCardToUnscratched()
+        val application = context.application as ScratchCardTestApplication
+        val delayStarted = CompletableDeferred<Duration>()
+        val delayCancelled = CompletableDeferred<Unit>()
+        application.scratchDelay = { duration ->
+            delayStarted.complete(duration)
+            try {
+                awaitCancellation()
+            } finally {
+                delayCancelled.complete(Unit)
+            }
+        }
+
+        try {
+            compose.onNodeWithTag("scratchButton").performClick()
+            compose.onNodeWithText(context.getString(R.string.scratch_screen_title)).assertIsDisplayed()
+            compose.onNodeWithTag("revealButton").performClick()
+            compose.waitUntil(5_000) { delayStarted.isCompleted }
+            assertEquals(2.seconds, runBlocking { delayStarted.await() })
+            compose.onNodeWithText(context.getString(R.string.scratch_revealing_action)).assertIsDisplayed()
+
+            InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
+
+            compose.waitUntil(5_000) { delayCancelled.isCompleted }
+            compose.onNodeWithText(context.getString(R.string.card_state_unscratched)).assertIsDisplayed()
+            assertEquals(
+                ScratchCardState.Unscratched,
+                application.injector().scratchCardModule.scratchCardRepository.cardStateFlow.value,
+            )
+        } finally {
+            application.scratchDelay = {}
+        }
+    }
 
     @Test
     fun givenUnscratchedCard_whenVersionIsAboveThreshold_thenCardBecomesActivated(): Unit = synchronized(TEST_EXECUTION_LOCK) {
