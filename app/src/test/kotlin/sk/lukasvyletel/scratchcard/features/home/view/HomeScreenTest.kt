@@ -4,11 +4,13 @@ import android.content.Context
 import android.os.Build
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -24,6 +26,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
+import sk.lukasvyletel.scratchcard.features.card.api.VersionService
 import sk.lukasvyletel.scratchcard.ActivationRoute
 import sk.lukasvyletel.scratchcard.HomeRoute
 import sk.lukasvyletel.scratchcard.R
@@ -102,6 +105,26 @@ class HomeScreenTest {
             compose.onNodeWithTag("cardStatus").assertTextEquals(context.getString(R.string.card_state_activated))
             compose.onNodeWithTag("cardCode").assertTextEquals(code)
         }
+
+    @Test
+    fun `GIVEN home is visible WHEN activation fails THEN an error snackbar is shown`() = runTest {
+        val testInjector = MockInjector(
+            cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
+            activationCoroutineScope = backgroundScope,
+            versionService = VersionService { throw IllegalStateException("Activation failed") },
+        )
+        val repository = testInjector.scratchCardModule.scratchCardRepository
+        repository.scratchCard()
+        advanceUntilIdle()
+        setupView(testInjector)
+
+        repository.activateCard(ScratchCardState.Scratched(MockInjector.TEST_SCRATCH_CODE))
+        runCurrent()
+        compose.waitForIdle()
+
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        compose.onNodeWithText(context.getString(R.string.activation_error_body)).assertIsDisplayed()
+    }
 
     @Test
     fun `GIVEN a revealed card WHEN activation is clicked THEN only the activation route is added`() =

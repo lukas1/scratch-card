@@ -8,13 +8,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.filter
 import sk.lukasvyletel.scratchcard.ActivationRoute
 import sk.lukasvyletel.scratchcard.R
 import sk.lukasvyletel.scratchcard.ScratchRoute
@@ -32,28 +40,50 @@ fun HomeScreen() {
 
 @Composable
 fun HomeScreen(cardState: ScratchCardState) {
-    val navigation = LocalInjector.current.globalModule.navigation
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(colorResource(R.color.scratch_cream))
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp, vertical = 20.dp),
-    ) {
-        HomeHeader()
-        Spacer(modifier = Modifier.height(24.dp))
-        HomeIntroduction(cardState)
-        Spacer(modifier = Modifier.height(20.dp))
-        StateHeading(cardState)
-        Spacer(modifier = Modifier.height(16.dp))
-        ScratchCardArtwork(cardState)
-        Spacer(modifier = Modifier.height(20.dp))
-        HomeActionButtons(
-            scratchEnabled = cardState == ScratchCardState.Unscratched,
-            activationEnabled = cardState is ScratchCardState.Scratched,
-            onScratchClick = { navigation.navigateTo(ScratchRoute) },
-            onActivationClick = { navigation.navigateTo(ActivationRoute) },
-        )
+    val injector = LocalInjector.current
+    val navigation = injector.globalModule.navigation
+    val scratchCardRepository = injector.scratchCardModule.scratchCardRepository
+    val showActivationError by scratchCardRepository.activationErrorFlow.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val activationErrorMessage = stringResource(R.string.activation_error_body)
+
+    LaunchedEffect(scratchCardRepository, snackbarHostState, activationErrorMessage) {
+        snapshotFlow { showActivationError }
+            .filter { it }
+            .collect {
+                scratchCardRepository.dismissActivationError()
+                snackbarHostState.showSnackbar(activationErrorMessage)
+            }
+    }
+
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = colorResource(R.color.scratch_cream),
+    ) { contentPadding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(colorResource(R.color.scratch_cream))
+                .verticalScroll(rememberScrollState())
+                .padding(contentPadding)
+                .padding(horizontal = 24.dp, vertical = 20.dp),
+        ) {
+            HomeHeader()
+            Spacer(modifier = Modifier.height(24.dp))
+            HomeIntroduction(cardState)
+            Spacer(modifier = Modifier.height(20.dp))
+            StateHeading(cardState)
+            Spacer(modifier = Modifier.height(16.dp))
+            ScratchCardArtwork(cardState)
+            Spacer(modifier = Modifier.height(20.dp))
+            HomeActionButtons(
+                scratchEnabled = cardState == ScratchCardState.Unscratched,
+                activationEnabled = cardState is ScratchCardState.Scratched,
+                onScratchClick = { navigation.navigateTo(ScratchRoute) },
+                onActivationClick = { navigation.navigateTo(ActivationRoute) },
+            )
+        }
     }
 }
 
