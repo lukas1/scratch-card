@@ -41,21 +41,16 @@ import sk.lukasvyletel.scratchcard.shared.ui.ScratchCardFrame
 import sk.lukasvyletel.scratchcard.features.scratch.view.preview.ScratchCardScreenPreviewContent
 
 @Composable
-fun ScratchCardScreen(
-    isRevealing: Boolean = false,
-    onRevealClick: () -> Unit = {},
-) {
+fun ScratchCardScreen() {
     val scratchCardViewModel: ScratchCardViewModel = viewModel(
         factory = ScratchCardViewModelFactory(LocalInjector.current.scratchCardModule),
     )
     val code by scratchCardViewModel.code.collectAsStateWithLifecycle()
+    val isLoading by scratchCardViewModel.isLoading.collectAsStateWithLifecycle()
     ScratchCardScreenContent(
         code = code,
-        isRevealing = isRevealing,
-        onRevealClick = {
-            scratchCardViewModel.scratchCard()
-            onRevealClick()
-        },
+        isRevealing = isLoading,
+        onRevealClick = scratchCardViewModel::scratchCard,
     )
 }
 

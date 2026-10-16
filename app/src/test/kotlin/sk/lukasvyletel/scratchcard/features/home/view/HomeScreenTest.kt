@@ -10,6 +10,10 @@ import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.test.core.app.ApplicationProvider
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -28,16 +32,16 @@ import sk.lukasvyletel.scratchcard.test.MockInjector
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Build.VERSION_CODES.VANILLA_ICE_CREAM])
+@OptIn(ExperimentalCoroutinesApi::class)
 class HomeScreenTest {
     @get:Rule
     val compose = createComposeRule()
 
     private val injector = MockInjector()
-    private val scratchCardRepository = injector.scratchCardModule.scratchCardRepository
 
-    private fun setupView() {
+    private fun setupView(activeInjector: MockInjector = injector) {
         compose.setContent {
-            CompositionLocalProvider(LocalInjector provides injector) {
+            CompositionLocalProvider(LocalInjector provides activeInjector) {
                 HomeScreen()
             }
         }
@@ -53,23 +57,28 @@ class HomeScreenTest {
     }
 
     @Test
-    fun `GIVEN a revealed card WHEN activated THEN the status changes and code stays visible`() {
-        val code = MockInjector.TEST_SCRATCH_CODE
-        scratchCardRepository.scratchCard()
-        setupView()
-
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        compose.onNodeWithTag("cardStatus").assertTextEquals(context.getString(R.string.card_state_scratched))
-        compose.onNodeWithTag("cardCode").assertTextEquals(code)
-
-        compose.runOnIdle {
-            scratchCardRepository.activateCard(
-                ScratchCardState.Scratched(code = code)
+    fun `GIVEN a revealed card WHEN activated THEN the status changes and code stays visible`() =
+        runTest {
+            val code = MockInjector.TEST_SCRATCH_CODE
+            val testInjector = MockInjector(
+                cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
             )
+            testInjector.scratchCardModule.scratchCardRepository.scratchCard()
+            advanceUntilIdle()
+            setupView(testInjector)
+
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            compose.onNodeWithTag("cardStatus").assertTextEquals(context.getString(R.string.card_state_scratched))
+            compose.onNodeWithTag("cardCode").assertTextEquals(code)
+
+            compose.runOnIdle {
+                testInjector.scratchCardModule.scratchCardRepository.activateCard(
+                    ScratchCardState.Scratched(code = code)
+                )
+            }
+            compose.onNodeWithTag("cardStatus").assertTextEquals(context.getString(R.string.card_state_activated))
+            compose.onNodeWithTag("cardCode").assertTextEquals(code)
         }
-        compose.onNodeWithTag("cardStatus").assertTextEquals(context.getString(R.string.card_state_activated))
-        compose.onNodeWithTag("cardCode").assertTextEquals(code)
-    }
 
     @Test
     fun `GIVEN the main screen WHEN navigation actions are clicked THEN routes are added to the injected back stack`() {

@@ -2,10 +2,13 @@ package sk.lukasvyletel.scratchcard.features.scratch.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import sk.lukasvyletel.scratchcard.core.coroutines.WHILE_SUBSCRIBED_STOP_TIMEOUT_FOR_CONFIGURATION_CHANGES_MILLIS
 import sk.lukasvyletel.scratchcard.features.card.ScratchCardRepository
 import sk.lukasvyletel.scratchcard.features.card.ScratchCardState
@@ -13,6 +16,8 @@ import sk.lukasvyletel.scratchcard.features.card.ScratchCardState
 class ScratchCardViewModel(
     private val scratchCardRepository: ScratchCardRepository,
 ) : ViewModel() {
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
     val code: StateFlow<String?> = scratchCardRepository.cardStateFlow
         .map { cardState ->
             when (cardState) {
@@ -29,7 +34,15 @@ class ScratchCardViewModel(
         )
 
     fun scratchCard() {
-        scratchCardRepository.scratchCard()
+        if (_isLoading.value || code.value != null) return
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                scratchCardRepository.scratchCard()
+            } finally {
+                _isLoading.value = false
+            }
+        }
     }
 }
 
