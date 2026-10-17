@@ -9,6 +9,7 @@ kotlin = "2.4.21"
 kotlinx-serialization = "1.11.0"
 compose-bom = "2026.09.00"
 activity-compose = "1.13.0"
+core-splashscreen = "1.2.0"
 lifecycle = "2.11.0"
 navigation3 = "1.2.0"
 kotlinx-coroutines = "1.11.0"
@@ -21,6 +22,7 @@ detekt = "1.23.8"
 [libraries]
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
+androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "core-splashscreen" }
 androidx-compose-ui = { module = "androidx.compose.ui:ui" }
 androidx-compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 androidx-compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }

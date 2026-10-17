@@ -1,3 +1,8 @@
 <resources>
     <style name="Theme.ScratchCard" parent="android:style/Theme.Material.Light.NoActionBar" />
+    <style name="Theme.ScratchCard.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/scratch_cream</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_brand_mark</item>
+        <item name="postSplashScreenTheme">@style/Theme.ScratchCard</item>
+    </style>
 </resources>

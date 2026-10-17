@@ -1,6 +1,7 @@
 package sk.lukasvyletel.scratchcard
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
@@ -12,7 +13,10 @@ import sk.lukasvyletel.scratchcard.features.home.view.HomeScreen
 import sk.lukasvyletel.scratchcard.features.scratch.view.ScratchCardScreen
 
 @Composable
-fun AppNavigation(modifier: Modifier = Modifier) {
+fun AppNavigation(
+    modifier: Modifier = Modifier,
+    onHomeIconPositioned: (Rect) -> Unit,
+) {
     val navigation = LocalInjector.current.globalModule.navigation
 
     NavDisplay(
@@ -26,7 +30,7 @@ fun AppNavigation(modifier: Modifier = Modifier) {
         entryProvider = { key ->
             when (key) {
                 HomeRoute -> NavEntry(key) {
-                    HomeScreen()
+                    HomeScreen(onHeaderIconPositioned = onHomeIconPositioned)
                 }
 
                 ScratchRoute -> NavEntry(key) {

@@ -15,7 +15,10 @@ import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashTransition = SplashToHeaderTransition.install(this)
         super.onCreate(savedInstanceState)
+        lifecycle.addObserver(splashTransition)
+        splashTransition.registerExitListener()
         enableEdgeToEdge()
         setContent {
             MaterialTheme {
@@ -30,6 +33,7 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier
                                 .fillMaxSize()
                                 .padding(innerPadding),
+                            onHomeIconPositioned = splashTransition::onHeaderIconPositioned,
                         )
                     }
                 }

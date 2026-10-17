@@ -16,6 +16,6 @@ import sk.lukasvyletel.scratchcard.features.home.view.HomeScreen
 @Composable
 fun HomeScreenPreviewContent(cardState: ScratchCardState = ScratchCardState.Unscratched) {
     CompositionLocalProvider(LocalInjector provides PreviewInjector()) {
-        HomeScreen(cardState)
+        HomeScreen(cardState, onHeaderIconPositioned = {})
     }
 }

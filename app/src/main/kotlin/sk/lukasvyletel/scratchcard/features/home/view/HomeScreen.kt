@@ -17,6 +17,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,14 +35,19 @@ import sk.lukasvyletel.scratchcard.features.card.model.ScratchCardState
 import sk.lukasvyletel.scratchcard.features.home.view.preview.HomeScreenPreviewContent
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onHeaderIconPositioned: (Rect) -> Unit,
+) {
     val cardState by LocalInjector.current.scratchCardModule.scratchCardRepository.cardStateFlow
         .collectAsStateWithLifecycle()
-    HomeScreen(cardState)
+    HomeScreen(cardState, onHeaderIconPositioned)
 }
 
 @Composable
-fun HomeScreen(cardState: ScratchCardState) {
+fun HomeScreen(
+    cardState: ScratchCardState,
+    onHeaderIconPositioned: (Rect) -> Unit,
+) {
     val injector = LocalInjector.current
     val navigation = injector.globalModule.navigation
     val scratchCardRepository = injector.scratchCardModule.scratchCardRepository
@@ -60,7 +66,7 @@ fun HomeScreen(cardState: ScratchCardState) {
                 .padding(contentPadding)
                 .padding(horizontal = 24.dp, vertical = 20.dp),
         ) {
-            HomeHeader()
+            HomeHeader(onHeaderIconPositioned)
             Spacer(modifier = Modifier.height(24.dp))
             HomeIntroduction(cardState)
             Spacer(modifier = Modifier.height(20.dp))

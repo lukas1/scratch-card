@@ -3,6 +3,7 @@ package sk.lukasvyletel.scratchcard.features.home.view
 import android.content.Context
 import android.os.Build
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
@@ -52,7 +53,7 @@ class HomeScreenTest {
     private fun setupView(activeInjector: MockInjector = injector) {
         compose.setContent {
             CompositionLocalProvider(LocalInjector provides activeInjector) {
-                HomeScreen()
+                HomeScreen(onHeaderIconPositioned = {})
             }
         }
     }
@@ -246,6 +247,22 @@ class HomeScreenTest {
                 )
             }
         }
+
+    @Test
+    fun `GIVEN the home screen WHEN the header is laid out THEN icon bounds are reported`() {
+        var iconBounds: Rect? = null
+        compose.setContent {
+            CompositionLocalProvider(LocalInjector provides injector) {
+                HomeScreen(onHeaderIconPositioned = { iconBounds = it })
+            }
+        }
+
+        compose.runOnIdle {
+            val bounds = requireNotNull(iconBounds)
+            assertTrue(bounds.width > 0f)
+            assertTrue(bounds.height > 0f)
+        }
+    }
 
     @Test
     @GraphicsMode(GraphicsMode.Mode.LEGACY)
