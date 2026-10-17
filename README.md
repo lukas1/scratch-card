@@ -62,4 +62,7 @@ hardcoded base URL (`http://10.0.2.2:8080/`), which can be replaced with the
 service URL when it is available. The `mock` variant starts an in-process
 MockWebServer and randomly serves version responses or HTTP 500 errors, so the
 app can be run and its activation success and error flows explored without a
-backend.
+backend. The mock app is named `M-Scratch Card` on the device and uses the
+application ID `sk.lukasvyletel.scratchcard.mock`, so it can be installed
+alongside the production app (`Scratch Card`, application ID
+`sk.lukasvyletel.scratchcard`).

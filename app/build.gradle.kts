@@ -73,6 +73,7 @@ android {
     productFlavors {
         create("mock") {
             dimension = "service"
+            applicationIdSuffix = ".mock"
         }
         create("production") {
             dimension = "service"
