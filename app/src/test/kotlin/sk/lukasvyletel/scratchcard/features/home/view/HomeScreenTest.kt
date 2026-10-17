@@ -249,8 +249,10 @@ class HomeScreenTest {
 
     @Test
     @GraphicsMode(GraphicsMode.Mode.LEGACY)
-    fun `GIVEN the home screen WHEN the scratch card is captured THEN the card is rendered`() {
-        setupView()
+    fun `GIVEN scratch card artwork WHEN captured THEN the card is rendered`() {
+        compose.setContent {
+            ScratchCardArtwork(ScratchCardState.Unscratched)
+        }
 
         val image = compose.onNodeWithTag("scratchCard").captureToImage()
 

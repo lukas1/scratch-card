@@ -1,16 +1,17 @@
 package sk.lukasvyletel.scratchcard.features.home.view
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -20,11 +21,12 @@ import sk.lukasvyletel.scratchcard.R
 @Composable
 fun HomeHeader() {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Box(
-            modifier = Modifier.size(38.dp).background(colorResource(R.color.scratch_lime), CircleShape),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(text = "✳", color = colorResource(R.color.scratch_ink), fontSize = 23.sp, lineHeight = 23.sp)
+        Box(modifier = Modifier.size(38.dp), contentAlignment = Alignment.Center) {
+            Image(
+                painter = painterResource(R.drawable.ic_brand_mark),
+                contentDescription = null,
+                modifier = Modifier.requiredSize(64.dp),
+            )
         }
         Text(
             text = stringResource(R.string.home_brand_name),
