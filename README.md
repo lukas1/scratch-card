@@ -33,7 +33,9 @@ the supplied activation service.
 
 Service definition:
 
-- Path: `/version` on the supplied service's base URL.
+- Endpoint: `https://api.o2.sk/version`.
+- Base URL: `https://api.o2.sk/`.
+- Path: `/version`.
 - Method: `GET`.
 - Query parameter: `code`.
 - Authentication: none.
@@ -56,13 +58,12 @@ engineering.
 
 ## Solution notes
 
-The assignment describes the activation service but does not provide its base
-URL, so the app has two build variants. The `production` variant uses a
-hardcoded base URL (`https://10.0.2.2:8080/`), which can be replaced with the
-service URL when it is available. The `mock` variant starts an in-process
-MockWebServer and randomly serves version responses or HTTP 500 errors, so the
-app can be run and its activation success and error flows explored without a
-backend. The mock app is named `M-Scratch Card` on the device and uses the
-application ID `sk.lukasvyletel.scratchcard.mock`, so it can be installed
-alongside the production app (`Scratch Card`, application ID
-`sk.lukasvyletel.scratchcard`).
+The `production` variant calls the supplied activation service at
+`https://api.o2.sk/version`. Its Retrofit base URL is `https://api.o2.sk/`,
+and the request includes the `code` query parameter. The `mock` variant starts
+an in-process MockWebServer and randomly serves version responses or HTTP 500
+errors, so the app can be run and its activation success and error flows
+explored without a backend. The mock app is named `M-Scratch Card` on the
+device and uses the application ID `sk.lukasvyletel.scratchcard.mock`, so it
+can be installed alongside the production app (`Scratch Card`, application
+ID `sk.lukasvyletel.scratchcard`).
