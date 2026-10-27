@@ -51,7 +51,10 @@ class ScratchCardRepository(
                     result.fold(
                         onSuccess = { isActivated ->
                             if (isActivated) {
-                                _cardStateFlow.value = ScratchCardState.Activated(code = scratchedCard.code)
+                                _cardStateFlow.compareAndSet(
+                                    expect = scratchedCard,
+                                    update = ScratchCardState.Activated(code = scratchedCard.code),
+                                )
                             } else {
                                 _activationErrorFlow.value = ActivationError.ACTIVATION_FAILED
                             }
