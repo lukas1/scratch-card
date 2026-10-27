@@ -121,7 +121,7 @@ class ScratchCardRepositoryTest {
                     activationCallCount += 1
                     activationStarted.complete(Unit)
                     failActivation.await()
-                    throw IllegalStateException("Activation failed")
+                    error("Activation failed")
                 },
             )
             repository.scratchCard()
