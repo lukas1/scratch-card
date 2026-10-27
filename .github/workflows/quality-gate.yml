@@ -64,3 +64,13 @@ jobs:
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           disable-animations: true
           script: ./gradlew qualityGate
+
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          path: |
+            app/build/reports/kover/htmlMockDebug/
+            app/build/reports/kover/htmlProductionDebug/
+          if-no-files-found: warn
