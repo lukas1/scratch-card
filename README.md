@@ -1,5 +1,7 @@
 # Scratch Card
 
+[![Quality Gate](https://github.com/lukas1/scratch-card/actions/workflows/quality-gate.yml/badge.svg?branch=main)](https://github.com/lukas1/scratch-card/actions/workflows/quality-gate.yml)
+
 ## Assignment
 
 Create an Android application in Kotlin that models a scratch card and its usage.
@@ -67,3 +69,8 @@ explored without a backend. The mock app is named `M-Scratch Card` on the
 device and uses the application ID `sk.lukasvyletel.scratchcard.mock`, so it
 can be installed alongside the production app (`Scratch Card`, application
 ID `sk.lukasvyletel.scratchcard`).
+
+CI pipeline runs on main on purpose. This is a single person project, checks
+are also run locally before pushes and therefore pull requests would serve
+no purpose in this repo. With team collaboration it'd be setup on PRs with and
+passing the CI verification would be required for a PR to be mergeable.
