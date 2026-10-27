@@ -19,6 +19,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
@@ -153,6 +154,44 @@ class HomeScreenTest {
             .assertTextEquals(context.getString(R.string.card_state_unscratched))
         compose.onNodeWithTag("cardCode").assertTextEquals(context.getString(R.string.card_hidden_code))
     }
+
+    @Test
+    fun `GIVEN activation is pending WHEN reset is clicked THEN activation job is cancelled`() =
+        runTest {
+            val activationStarted = CompletableDeferred<Unit>()
+            val activationCancelled = CompletableDeferred<Unit>()
+            val mockInjector = MockInjector(
+                cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
+                activationCoroutineScope = backgroundScope,
+                versionService = VersionService {
+                    activationStarted.complete(Unit)
+                    try {
+                        awaitCancellation()
+                    } finally {
+                        activationCancelled.complete(Unit)
+                    }
+                },
+            )
+            val repository = mockInjector.scratchCardModule.scratchCardRepository
+            repository.scratchCard()
+            advanceUntilIdle()
+            setupView(mockInjector)
+
+            repository.activateCard(ScratchCardState.Scratched(MockInjector.TEST_SCRATCH_CODE))
+            runCurrent()
+            activationStarted.await()
+
+            compose.onNodeWithTag("resetCardButton")
+                .performScrollTo()
+                .performClick()
+            runCurrent()
+            activationCancelled.await()
+
+            compose.runOnIdle {
+                assertEquals(false, repository.activationInProgressFlow.value)
+                assertEquals(ScratchCardState.Unscratched, repository.cardStateFlow.value)
+            }
+        }
 
     @Test
     fun `GIVEN a revealed card WHEN activated THEN the status changes and code stays visible`() =

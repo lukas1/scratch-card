@@ -1,6 +1,7 @@
 package sk.lukasvyletel.scratchcard.features.card.repository
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -27,6 +28,8 @@ class ScratchCardRepository(
     val activationInProgressFlow: StateFlow<Boolean> = _activationInProgressFlow.asStateFlow()
     private val scratchMutex = Mutex()
     private val activationMutex = Mutex()
+    private val activationJobLock = Any()
+    private var activationJob: Job? = null
 
     suspend fun scratchCard() {
         scratchMutex.withLock {
@@ -37,10 +40,10 @@ class ScratchCardRepository(
     }
 
     fun activateCard(scratchedCard: ScratchCardState.Scratched) {
-        if (!_activationInProgressFlow.compareAndSet(expect = false, update = true)) return
+        synchronized(activationJobLock) {
+            if (!_activationInProgressFlow.compareAndSet(expect = false, update = true)) return
 
-        activationCoroutineScope.launch {
-            try {
+            val job = activationCoroutineScope.launch {
                 activationMutex.withLock {
                     if (_cardStateFlow.value != scratchedCard) return@withLock
 
@@ -62,15 +65,28 @@ class ScratchCardRepository(
                         onFailure = { _activationErrorFlow.value = ActivationError.UNEXPECTED_ERROR },
                     )
                 }
-            } finally {
-                _activationInProgressFlow.value = false
+            }
+
+            activationJob = job
+            job.invokeOnCompletion {
+                synchronized(activationJobLock) {
+                    if (activationJob === job) {
+                        activationJob = null
+                        _activationInProgressFlow.value = false
+                    }
+                }
             }
         }
     }
 
     fun resetCard() {
-        _cardStateFlow.value = ScratchCardState.Unscratched
-        _activationErrorFlow.value = null
+        val jobToCancel = synchronized(activationJobLock) {
+            _cardStateFlow.value = ScratchCardState.Unscratched
+            _activationErrorFlow.value = null
+            _activationInProgressFlow.value = false
+            activationJob.also { activationJob = null }
+        }
+        jobToCancel?.cancel()
     }
 
     fun dismissActivationError() {
