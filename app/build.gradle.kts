@@ -57,6 +57,8 @@ android {
 
     lint {
         warningsAsErrors = true
+        informational += "NewerVersionAvailable"
+        informational += "GradleDependency"
     }
 
     defaultConfig {
