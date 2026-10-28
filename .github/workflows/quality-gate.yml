@@ -1,9 +1,9 @@
 name: Quality Gate
 
 on:
+  pull_request:
   push:
-    branches:
-      - main
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -16,16 +16,16 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v6
+        uses: actions/setup-java@v6.1.0
         with:
           distribution: temurin
           java-version: '17'
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v5
+        uses: gradle/actions/setup-gradle@v6.4.0
 
       - name: Enable KVM
         run: |
@@ -34,7 +34,7 @@ jobs:
           sudo udevadm trigger --name-match=kvm
 
       - name: Cache Android emulator snapshot
-        uses: actions/cache@v5
+        uses: actions/cache@v6.1.0
         id: avd-cache
         with:
           path: |
@@ -44,7 +44,7 @@ jobs:
 
       - name: Create emulator snapshot
         if: steps.avd-cache.outputs.cache-hit != 'true'
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
           api-level: '37.0'
           arch: x86_64
@@ -55,7 +55,7 @@ jobs:
           script: echo "Generated Android 37.0 AVD snapshot for caching."
 
       - name: Run quality gate on cached emulator
-        uses: reactivecircus/android-emulator-runner@v2
+        uses: reactivecircus/android-emulator-runner@v2.38.0
         with:
           api-level: '37.0'
           arch: x86_64
@@ -67,7 +67,7 @@ jobs:
 
       - name: Upload coverage reports
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: coverage-reports-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
           path: |
