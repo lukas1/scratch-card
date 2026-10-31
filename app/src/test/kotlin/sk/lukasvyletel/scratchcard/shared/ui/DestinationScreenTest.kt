@@ -21,7 +21,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import sk.lukasvyletel.scratchcard.R
 import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
-import sk.lukasvyletel.scratchcard.test.MockInjector
+import sk.lukasvyletel.scratchcard.features.card.test.cardTestInjector
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Build.VERSION_CODES.VANILLA_ICE_CREAM])
@@ -32,7 +32,7 @@ class DestinationScreenTest {
     @Test
     fun `GIVEN long destination content WHEN scrolled to the end THEN navigation header remains visible`() {
         compose.setContent {
-            CompositionLocalProvider(LocalInjector provides MockInjector()) {
+            CompositionLocalProvider(LocalInjector provides cardTestInjector()) {
                 DestinationScreen(
                     title = R.string.scratch_screen_title,
                     description = R.string.scratch_screen_description,

@@ -10,7 +10,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
-import sk.lukasvyletel.scratchcard.test.MockInjector
+import sk.lukasvyletel.scratchcard.features.card.test.cardTestInjector
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [35])
@@ -22,7 +22,7 @@ class AppNavigationTest {
     fun `GIVEN initial navigation WHEN displayed THEN Home icon bounds reach the splash target`() {
         var iconBounds: Rect? = null
         compose.setContent {
-            CompositionLocalProvider(LocalInjector provides MockInjector()) {
+            CompositionLocalProvider(LocalInjector provides cardTestInjector()) {
                 AppNavigation(onHomeIconPositioned = { iconBounds = it })
             }
         }

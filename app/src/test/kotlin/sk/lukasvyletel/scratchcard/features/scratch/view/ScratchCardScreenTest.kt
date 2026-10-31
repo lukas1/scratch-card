@@ -28,7 +28,9 @@ import sk.lukasvyletel.scratchcard.R
 import sk.lukasvyletel.scratchcard.ScratchRoute
 import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
 import sk.lukasvyletel.scratchcard.features.card.model.ScratchCardState
-import sk.lukasvyletel.scratchcard.test.MockInjector
+import sk.lukasvyletel.scratchcard.features.card.test.TEST_SCRATCH_CODE
+import sk.lukasvyletel.scratchcard.core.dependency_injection.Injector
+import sk.lukasvyletel.scratchcard.features.card.test.cardTestInjector
 import kotlin.time.Duration.Companion.milliseconds
 
 @RunWith(RobolectricTestRunner::class)
@@ -39,10 +41,10 @@ class ScratchCardScreenTest {
     val compose = createComposeRule()
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
-    private val injector = MockInjector()
+    private val injector = cardTestInjector()
 
     private fun setupView(
-        activeInjector: MockInjector = injector,
+        activeInjector: Injector = injector,
     ) {
         compose.setContent {
             CompositionLocalProvider(LocalInjector provides activeInjector) {
@@ -77,7 +79,7 @@ class ScratchCardScreenTest {
     fun `WHEN reveal is tapped THEN card begins revealing`() {
         val scheduler = TestCoroutineScheduler()
         val testDispatcher = StandardTestDispatcher(scheduler)
-        val testInjector = MockInjector(cpuBoundCoroutineDispatcher = testDispatcher)
+        val testInjector = cardTestInjector(cpuBoundCoroutineDispatcher = testDispatcher)
         setupView(activeInjector = testInjector)
 
         compose.onNodeWithTag("scratchFoil").assertIsDisplayed()
@@ -98,20 +100,20 @@ class ScratchCardScreenTest {
             testInjector.scratchCardModule.scratchCardRepository.cardStateFlow.value is
                 ScratchCardState.Scratched
         }
-        compose.onNodeWithTag("scratchCode").assertTextEquals(MockInjector.TEST_SCRATCH_CODE)
+        compose.onNodeWithTag("scratchCode").assertTextEquals(TEST_SCRATCH_CODE)
         compose.onNodeWithTag("revealButton").assertIsNotEnabled()
     }
 
     @Test
     fun `GIVEN a revealed card THEN its code is shown and reveal is unavailable`() = runTest {
-        val testInjector = MockInjector(
+        val testInjector = cardTestInjector(
             cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
         )
         testInjector.scratchCardModule.scratchCardRepository.scratchCard()
         advanceUntilIdle()
         setupView(activeInjector = testInjector)
 
-        compose.onNodeWithTag("scratchCode").assertTextEquals(MockInjector.TEST_SCRATCH_CODE)
+        compose.onNodeWithTag("scratchCode").assertTextEquals(TEST_SCRATCH_CODE)
         compose.onNodeWithTag("revealButton").assertIsNotEnabled()
     }
 }

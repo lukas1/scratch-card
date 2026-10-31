@@ -19,7 +19,9 @@ import sk.lukasvyletel.scratchcard.features.card.api.ActivationVersion
 import sk.lukasvyletel.scratchcard.features.card.repository.ScratchCardRepository
 import sk.lukasvyletel.scratchcard.features.card.model.ScratchCardState
 import sk.lukasvyletel.scratchcard.test.MainDispatcherRule
-import sk.lukasvyletel.scratchcard.test.MockInjector
+import sk.lukasvyletel.scratchcard.features.card.test.TEST_SCRATCH_CODE
+import sk.lukasvyletel.scratchcard.core.dependency_injection.Injector
+import sk.lukasvyletel.scratchcard.features.card.test.cardTestInjector
 import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -33,7 +35,7 @@ class ActivateCardViewModelTest {
 
     @Test
     fun `GIVEN activation is in progress WHEN activation is requested again THEN request is ignored`() = runTest {
-        val injector = MockInjector(
+        val injector = cardTestInjector(
             cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
             activationCoroutineScope = backgroundScope,
         )
@@ -50,20 +52,20 @@ class ActivateCardViewModelTest {
 
         assertEquals(ActivationButtonState.ACTIVATED, viewModel.activationButtonState.value)
         assertEquals(
-            ScratchCardState.Activated(MockInjector.TEST_SCRATCH_CODE),
+            ScratchCardState.Activated(TEST_SCRATCH_CODE),
             repository.cardStateFlow.value,
         )
     }
 
     @Test
     fun `GIVEN card is already activated WHEN activation is requested THEN request is ignored`() = runTest {
-        val injector = MockInjector(
+        val injector = cardTestInjector(
             cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
             activationCoroutineScope = backgroundScope,
         )
         val repository = injector.scratchCardModule.scratchCardRepository
         completeScratchCard(repository)
-        repository.activateCard(ScratchCardState.Scratched(MockInjector.TEST_SCRATCH_CODE))
+        repository.activateCard(ScratchCardState.Scratched(TEST_SCRATCH_CODE))
         runCurrent()
 
         val viewModel = createViewModel(injector)
@@ -71,14 +73,14 @@ class ActivateCardViewModelTest {
 
         assertEquals(ActivationButtonState.ACTIVATED, viewModel.activationButtonState.value)
         assertEquals(
-            ScratchCardState.Activated(MockInjector.TEST_SCRATCH_CODE),
+            ScratchCardState.Activated(TEST_SCRATCH_CODE),
             repository.cardStateFlow.value,
         )
     }
 
     @Test
     fun `GIVEN scratched card WHEN activation runs THEN progress state follows the request`() = runTest {
-        val injector = MockInjector(
+        val injector = cardTestInjector(
             cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
             activationCoroutineScope = backgroundScope,
         )
@@ -92,14 +94,14 @@ class ActivateCardViewModelTest {
         runCurrent()
         assertEquals(ActivationButtonState.ACTIVATED, viewModel.activationButtonState.value)
         assertEquals(
-            ScratchCardState.Activated(MockInjector.TEST_SCRATCH_CODE),
+            ScratchCardState.Activated(TEST_SCRATCH_CODE),
             repository.cardStateFlow.value,
         )
     }
 
     @Test
     fun `GIVEN activation requested WHEN view model is cleared THEN activation completes`() = runTest {
-        val injector = MockInjector(
+        val injector = cardTestInjector(
             cpuBoundCoroutineDispatcher = mainDispatcher,
             activationCoroutineScope = backgroundScope,
         )
@@ -116,7 +118,7 @@ class ActivateCardViewModelTest {
         runCurrent()
 
         assertEquals(
-            ScratchCardState.Activated(MockInjector.TEST_SCRATCH_CODE),
+            ScratchCardState.Activated(TEST_SCRATCH_CODE),
             repository.cardStateFlow.value,
         )
     }
@@ -125,7 +127,7 @@ class ActivateCardViewModelTest {
     fun `GIVEN activation continues after leaving screen WHEN screen returns THEN progress is restored`() =
         runTest {
         val activationResponse = CompletableDeferred<ActivationVersion>()
-        val injector = MockInjector(
+        val injector = cardTestInjector(
             cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
             activationCoroutineScope = backgroundScope,
             versionServiceFactory = { { activationResponse.await() } },
@@ -149,7 +151,7 @@ class ActivateCardViewModelTest {
     }
 
     private fun createViewModel(
-        injector: MockInjector,
+        injector: Injector,
         viewModelStore: ViewModelStore = ViewModelStore(),
     ): ActivateCardViewModel = ViewModelProvider(
         viewModelStore,

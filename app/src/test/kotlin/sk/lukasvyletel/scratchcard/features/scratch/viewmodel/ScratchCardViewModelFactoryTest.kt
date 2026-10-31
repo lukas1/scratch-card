@@ -4,12 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.CreationExtras
 import org.junit.Assert.assertThrows
 import org.junit.Test
-import sk.lukasvyletel.scratchcard.test.MockInjector
+import sk.lukasvyletel.scratchcard.features.card.test.cardTestInjector
 
 class ScratchCardViewModelFactoryTest {
     @Test
     fun `GIVEN unsupported ViewModel type WHEN factory creates it THEN an error is thrown`() {
-        val factory = ScratchCardViewModelFactory(MockInjector().scratchCardModule)
+        val factory = ScratchCardViewModelFactory(cardTestInjector().scratchCardModule)
 
         assertThrows(IllegalArgumentException::class.java) {
             factory.create(UnsupportedViewModel::class.java, CreationExtras.Empty)

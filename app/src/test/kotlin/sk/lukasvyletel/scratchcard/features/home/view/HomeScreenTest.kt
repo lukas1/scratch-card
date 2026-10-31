@@ -40,7 +40,9 @@ import sk.lukasvyletel.scratchcard.HomeRoute
 import sk.lukasvyletel.scratchcard.R
 import sk.lukasvyletel.scratchcard.core.dependency_injection.LocalInjector
 import sk.lukasvyletel.scratchcard.features.card.model.ScratchCardState
-import sk.lukasvyletel.scratchcard.test.MockInjector
+import sk.lukasvyletel.scratchcard.features.card.test.TEST_SCRATCH_CODE
+import sk.lukasvyletel.scratchcard.core.dependency_injection.Injector
+import sk.lukasvyletel.scratchcard.features.card.test.cardTestInjector
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Build.VERSION_CODES.VANILLA_ICE_CREAM])
@@ -49,9 +51,9 @@ class HomeScreenTest {
     @get:Rule
     val compose = createComposeRule()
 
-    private val injector = MockInjector()
+    private val injector = cardTestInjector()
 
-    private fun setupView(activeInjector: MockInjector = injector) {
+    private fun setupView(activeInjector: Injector = injector) {
         compose.setContent {
             CompositionLocalProvider(LocalInjector provides activeInjector) {
                 HomeScreen(onHeaderIconPositioned = {})
@@ -77,7 +79,7 @@ class HomeScreenTest {
 
     @Test
     fun `GIVEN a scratched card THEN scratching is disabled`() = runTest {
-        val testInjector = MockInjector(
+        val testInjector = cardTestInjector(
             cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
             activationCoroutineScope = backgroundScope,
         )
@@ -90,7 +92,7 @@ class HomeScreenTest {
 
     @Test
     fun `GIVEN a scratched card WHEN reset is clicked THEN the card returns to its unscratched state`() = runTest {
-        val testInjector = MockInjector(
+        val testInjector = cardTestInjector(
             cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
             activationCoroutineScope = backgroundScope,
         )
@@ -116,7 +118,7 @@ class HomeScreenTest {
         runTest {
         val activationStarted = CompletableDeferred<Unit>()
         val activationResponse = CompletableDeferred<ActivationVersion>()
-        val testInjector = MockInjector(
+        val testInjector = cardTestInjector(
             cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
             activationCoroutineScope = backgroundScope,
             versionServiceFactory = {
@@ -127,7 +129,7 @@ class HomeScreenTest {
             },
         )
         val repository = testInjector.scratchCardModule.scratchCardRepository
-        val code = MockInjector.TEST_SCRATCH_CODE
+        val code = TEST_SCRATCH_CODE
         repository.scratchCard()
         advanceUntilIdle()
         setupView(testInjector)
@@ -162,7 +164,7 @@ class HomeScreenTest {
         runTest {
             val activationStarted = CompletableDeferred<Unit>()
             val activationCancelled = CompletableDeferred<Unit>()
-            val mockInjector = MockInjector(
+            val mockInjector = cardTestInjector(
                 cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
                 activationCoroutineScope = backgroundScope,
                 versionServiceFactory = {
@@ -181,7 +183,7 @@ class HomeScreenTest {
             advanceUntilIdle()
             setupView(mockInjector)
 
-            repository.activateCard(ScratchCardState.Scratched(MockInjector.TEST_SCRATCH_CODE))
+            repository.activateCard(ScratchCardState.Scratched(TEST_SCRATCH_CODE))
             runCurrent()
             activationStarted.await()
 
@@ -200,8 +202,8 @@ class HomeScreenTest {
     @Test
     fun `GIVEN a revealed card WHEN activated THEN the status changes and code stays visible`() =
         runTest {
-            val code = MockInjector.TEST_SCRATCH_CODE
-            val testInjector = MockInjector(
+            val code = TEST_SCRATCH_CODE
+            val testInjector = cardTestInjector(
                 cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
                 activationCoroutineScope = backgroundScope,
             )
@@ -225,7 +227,7 @@ class HomeScreenTest {
 
     @Test
     fun `GIVEN home is visible WHEN activation fails THEN an error snackbar is shown`() = runTest {
-        val testInjector = MockInjector(
+        val testInjector = cardTestInjector(
             cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
             activationCoroutineScope = backgroundScope,
             versionServiceFactory = { VersionService { throw IllegalStateException("Activation failed") } },
@@ -235,7 +237,7 @@ class HomeScreenTest {
         advanceUntilIdle()
         setupView(testInjector)
 
-        repository.activateCard(ScratchCardState.Scratched(MockInjector.TEST_SCRATCH_CODE))
+        repository.activateCard(ScratchCardState.Scratched(TEST_SCRATCH_CODE))
         runCurrent()
         compose.waitForIdle()
 
@@ -245,7 +247,7 @@ class HomeScreenTest {
 
     @Test
     fun `GIVEN home is visible WHEN card version is too low THEN activation failure snackbar is shown`() = runTest {
-        val testInjector = MockInjector(
+        val testInjector = cardTestInjector(
             cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
             activationCoroutineScope = backgroundScope,
             versionServiceFactory = {
@@ -259,7 +261,7 @@ class HomeScreenTest {
         advanceUntilIdle()
         setupView(testInjector)
 
-        repository.activateCard(ScratchCardState.Scratched(MockInjector.TEST_SCRATCH_CODE))
+        repository.activateCard(ScratchCardState.Scratched(TEST_SCRATCH_CODE))
         runCurrent()
         compose.waitForIdle()
 
@@ -270,7 +272,7 @@ class HomeScreenTest {
     @Test
     fun `GIVEN a revealed card WHEN activation is clicked THEN only the activation route is added`() =
         runTest {
-            val testInjector = MockInjector(
+            val testInjector = cardTestInjector(
                 cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
                 activationCoroutineScope = backgroundScope,
             )

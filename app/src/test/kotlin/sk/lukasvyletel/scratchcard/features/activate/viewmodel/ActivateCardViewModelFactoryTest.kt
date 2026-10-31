@@ -8,14 +8,14 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import sk.lukasvyletel.scratchcard.features.activate.dependency_injection.ActivateCardModule
-import sk.lukasvyletel.scratchcard.test.MockInjector
+import sk.lukasvyletel.scratchcard.features.card.test.cardTestInjector
 
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
 class ActivateCardViewModelFactoryTest {
     @Test
     fun `GIVEN an unsupported model class WHEN factory creates a viewmodel THEN an error is thrown`() {
-        val injector = MockInjector()
+        val injector = cardTestInjector()
         val factory = ActivateCardViewModelFactory(
             ActivateCardModule(injector.scratchCardModule.scratchCardRepository),
         )

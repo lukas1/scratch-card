@@ -16,7 +16,9 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import sk.lukasvyletel.scratchcard.features.card.model.ScratchCardState
 import sk.lukasvyletel.scratchcard.test.MainDispatcherRule
-import sk.lukasvyletel.scratchcard.test.MockInjector
+import sk.lukasvyletel.scratchcard.features.card.test.TEST_SCRATCH_CODE
+import sk.lukasvyletel.scratchcard.core.dependency_injection.Injector
+import sk.lukasvyletel.scratchcard.features.card.test.cardTestInjector
 import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -32,7 +34,7 @@ class ScratchCardViewModelTest {
     fun `GIVEN scratch has completed WHEN scratch button is pressed again THEN card is scratched only once`() =
         runTest {
             var generatedCodeCount = 0
-            val injector = MockInjector(
+            val injector = cardTestInjector(
                 scratchCardCodeGenerator = {
                     generatedCodeCount += 1
                     "code-$generatedCodeCount"
@@ -65,7 +67,7 @@ class ScratchCardViewModelTest {
     @Test
     fun `GIVEN scratch requested WHEN one millisecond remains THEN loading stays active`() =
         runTest {
-            val injector = MockInjector(cpuBoundCoroutineDispatcher = mainDispatcher)
+            val injector = cardTestInjector(cpuBoundCoroutineDispatcher = mainDispatcher)
             val viewModel = createViewModel(injector)
 
             viewModel.scratchCard()
@@ -82,7 +84,7 @@ class ScratchCardViewModelTest {
     @Test
     fun `GIVEN scratch requested WHEN two seconds pass THEN card is scratched and loading ends`() =
         runTest {
-            val injector = MockInjector(cpuBoundCoroutineDispatcher = mainDispatcher)
+            val injector = cardTestInjector(cpuBoundCoroutineDispatcher = mainDispatcher)
             val viewModel = createViewModel(injector)
 
             viewModel.scratchCard()
@@ -93,7 +95,7 @@ class ScratchCardViewModelTest {
             assertEquals(false, viewModel.isLoading.value)
             val cardState = injector.scratchCardModule.scratchCardRepository.cardStateFlow.value
             assertEquals(
-                ScratchCardState.Scratched(MockInjector.TEST_SCRATCH_CODE),
+                ScratchCardState.Scratched(TEST_SCRATCH_CODE),
                 cardState,
             )
         }
@@ -102,10 +104,10 @@ class ScratchCardViewModelTest {
     fun `GIVEN scratch screen is left during scratching WHEN two seconds pass THEN card remains unscratched`() =
         runTest {
             var generatedCodeCount = 0
-            val injector = MockInjector(
+            val injector = cardTestInjector(
                 scratchCardCodeGenerator = {
                     generatedCodeCount += 1
-                    MockInjector.TEST_SCRATCH_CODE
+                    TEST_SCRATCH_CODE
                 },
                 cpuBoundCoroutineDispatcher = mainDispatcher,
             )
@@ -127,7 +129,7 @@ class ScratchCardViewModelTest {
             assertEquals(0, generatedCodeCount)
         }
 
-    private fun createViewModel(injector: MockInjector): ScratchCardViewModel = ViewModelProvider(
+    private fun createViewModel(injector: Injector): ScratchCardViewModel = ViewModelProvider(
         ViewModelStore(),
         ScratchCardViewModelFactory(injector.scratchCardModule),
     )[ScratchCardViewModel::class.java]

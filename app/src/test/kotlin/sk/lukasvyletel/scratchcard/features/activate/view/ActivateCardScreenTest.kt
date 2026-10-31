@@ -35,7 +35,9 @@ import sk.lukasvyletel.scratchcard.features.card.api.VersionService
 import sk.lukasvyletel.scratchcard.features.card.model.ScratchCardState
 import sk.lukasvyletel.scratchcard.features.card.api.ScratchCardApi
 import sk.lukasvyletel.scratchcard.test.MainDispatcherRule
-import sk.lukasvyletel.scratchcard.test.MockInjector
+import sk.lukasvyletel.scratchcard.features.card.test.TEST_SCRATCH_CODE
+import sk.lukasvyletel.scratchcard.core.dependency_injection.Injector
+import sk.lukasvyletel.scratchcard.features.card.test.cardTestInjector
 import sk.lukasvyletel.scratchcard.test.QueuedCoroutineDispatcher
 
 @RunWith(RobolectricTestRunner::class)
@@ -48,7 +50,7 @@ class ActivateCardScreenTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private fun setupView(injector: MockInjector = MockInjector()) {
+    private fun setupView(injector: Injector = cardTestInjector()) {
         compose.setContent {
             CompositionLocalProvider(LocalInjector provides injector) {
                 ActivateCardScreen()
@@ -69,7 +71,7 @@ class ActivateCardScreenTest {
 
     @Test
     fun `GIVEN activation screen WHEN back is clicked THEN activation route is removed`() {
-        val injector = MockInjector()
+        val injector = cardTestInjector()
         injector.globalModule.navigation.navigateTo(ActivationRoute)
         setupView(injector)
 
@@ -82,7 +84,7 @@ class ActivateCardScreenTest {
 
     @Test
     fun `GIVEN a scratched card THEN activation code is shown`() = runTest {
-        val injector = MockInjector(
+        val injector = cardTestInjector(
             cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
             activationCoroutineScope = backgroundScope,
         )
@@ -91,14 +93,14 @@ class ActivateCardScreenTest {
 
         setupView(injector)
 
-        compose.onNodeWithTag("activationCode").assertTextEquals(MockInjector.TEST_SCRATCH_CODE)
+        compose.onNodeWithTag("activationCode").assertTextEquals(TEST_SCRATCH_CODE)
     }
 
     @Test
     fun `GIVEN a scratched card WHEN activation button is pressed THEN button is disabled while activation runs`() =
         runTest {
             val activationDispatcher = QueuedCoroutineDispatcher()
-            val injector = MockInjector(
+            val injector = cardTestInjector(
                 cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
                 activationCoroutineScope = CoroutineScope(
                     backgroundScope.coroutineContext + activationDispatcher,
@@ -108,7 +110,7 @@ class ActivateCardScreenTest {
             repository.scratchCard()
             advanceUntilIdle()
             assertEquals(
-                ScratchCardState.Scratched(MockInjector.TEST_SCRATCH_CODE),
+                ScratchCardState.Scratched(TEST_SCRATCH_CODE),
                 repository.cardStateFlow.value,
             )
 
@@ -132,7 +134,7 @@ class ActivateCardScreenTest {
             compose.waitForIdle()
 
             assertEquals(
-                ScratchCardState.Activated(MockInjector.TEST_SCRATCH_CODE),
+                ScratchCardState.Activated(TEST_SCRATCH_CODE),
                 repository.cardStateFlow.value,
             )
             compose.onNodeWithTag("activateCardButton")
@@ -142,7 +144,7 @@ class ActivateCardScreenTest {
 
     @Test
     fun `GIVEN version is at threshold WHEN activation completes THEN error is shown`() = runTest {
-        val injector = MockInjector(
+        val injector = cardTestInjector(
             cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
             activationCoroutineScope = backgroundScope,
             versionServiceFactory = {
@@ -172,7 +174,7 @@ class ActivateCardScreenTest {
 
     @Test
     fun `GIVEN version request fails WHEN activation completes THEN unexpected error is shown`() = runTest {
-        val injector = MockInjector(
+        val injector = cardTestInjector(
             cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
             activationCoroutineScope = backgroundScope,
             versionServiceFactory = {
