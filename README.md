@@ -60,6 +60,10 @@ engineering.
 
 ## Solution notes
 
+Strictly speaking the architecture wiring around the assignment is larger than necessary for the
+given assignment. The goal was not to simply fulfill the assignment, but to showcase the engineering
+approach when working on a much larger project.
+
 The `production` variant calls the supplied activation service at
 `https://api.o2.sk/version`. Its Retrofit base URL is `https://api.o2.sk/`,
 and the request includes the `code` query parameter. The `mock` variant starts
@@ -74,3 +78,20 @@ CI pipeline runs on main on purpose. This is a single person project, checks
 are also run locally before pushes and therefore pull requests would serve
 no purpose in this repo. With team collaboration it'd be setup on PRs with and
 passing the CI verification would be required for a PR to be mergeable.
+
+### Dependency injection
+
+The handwritten dependency injection setup is deliberately more elaborate than
+this small demo needs. It demonstrates a way to add feature modules without
+making injector construction allocate a dependency factory or `by lazy` holder
+for every declared module. `AppBindings` provides production recipes, while
+tests use fail-closed bindings and feature-specific helpers to provide only
+the dependencies they need.
+
+`SharedInjector` creates modules on request and retains them in a thread-safe
+sparse cache. This keeps stateful dependencies, such as the card repository,
+alive across visits to a feature while allocating module instances only for
+features that are used. The previous design's constructor inputs and `by lazy`
+properties would add per-module startup work as the graph grew. This design
+avoids that particular cost; it does not make startup independent of code size,
+class loading, or modules actually requested at startup.
