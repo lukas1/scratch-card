@@ -6,7 +6,9 @@ import sk.lukasvyletel.scratchcard.features.card.api.ScratchCardApi
 
 @ExcludeFromCoverage
 class PreviewInjector : Injector by SharedInjector(
-    versionService = {
-        ActivationVersion((ScratchCardApi.ACTIVATION_VERSION_THRESHOLD + 1).toString())
+    versionServiceFactory = {
+        {
+            ActivationVersion((ScratchCardApi.ACTIVATION_VERSION_THRESHOLD + 1).toString())
+        }
     },
 )

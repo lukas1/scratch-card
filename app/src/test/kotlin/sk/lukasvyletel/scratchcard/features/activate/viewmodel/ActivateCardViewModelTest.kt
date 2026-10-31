@@ -128,7 +128,7 @@ class ActivateCardViewModelTest {
         val injector = MockInjector(
             cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
             activationCoroutineScope = backgroundScope,
-            versionService = { activationResponse.await() },
+            versionServiceFactory = { { activationResponse.await() } },
         )
         val repository = injector.scratchCardModule.scratchCardRepository
         completeScratchCard(repository)

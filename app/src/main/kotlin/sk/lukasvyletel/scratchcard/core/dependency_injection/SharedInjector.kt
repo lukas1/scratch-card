@@ -13,7 +13,7 @@ import sk.lukasvyletel.scratchcard.features.card.dependency_injection.ScratchCar
 import kotlin.uuid.Uuid
 
 class SharedInjector(
-    private val versionService: VersionService,
+    private val versionServiceFactory: () -> VersionService,
     scratchCardCodeGenerator: ScratchCardCodeGenerator = { Uuid.random().toString() },
     delayFunction: DelayFunction = coroutineDelay,
     cpuBoundCoroutineDispatcher: CoroutineDispatcher = Dispatchers.Default,
@@ -29,7 +29,7 @@ class SharedInjector(
             delayFunction = delayFunction,
             cpuBoundCoroutineDispatcher = cpuBoundCoroutineDispatcher,
             activationCoroutineScope = activationCoroutineScope,
-            versionService = versionService,
+            versionService = versionServiceFactory(),
         )
     }
 

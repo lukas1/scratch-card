@@ -119,9 +119,11 @@ class HomeScreenTest {
         val testInjector = MockInjector(
             cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
             activationCoroutineScope = backgroundScope,
-            versionService = VersionService {
-                activationStarted.complete(Unit)
-                activationResponse.await()
+            versionServiceFactory = {
+                VersionService {
+                    activationStarted.complete(Unit)
+                    activationResponse.await()
+                }
             },
         )
         val repository = testInjector.scratchCardModule.scratchCardRepository
@@ -163,12 +165,14 @@ class HomeScreenTest {
             val mockInjector = MockInjector(
                 cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
                 activationCoroutineScope = backgroundScope,
-                versionService = VersionService {
-                    activationStarted.complete(Unit)
-                    try {
-                        awaitCancellation()
-                    } finally {
-                        activationCancelled.complete(Unit)
+                versionServiceFactory = {
+                    VersionService {
+                        activationStarted.complete(Unit)
+                        try {
+                            awaitCancellation()
+                        } finally {
+                            activationCancelled.complete(Unit)
+                        }
                     }
                 },
             )
@@ -224,7 +228,7 @@ class HomeScreenTest {
         val testInjector = MockInjector(
             cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
             activationCoroutineScope = backgroundScope,
-            versionService = VersionService { throw IllegalStateException("Activation failed") },
+            versionServiceFactory = { VersionService { throw IllegalStateException("Activation failed") } },
         )
         val repository = testInjector.scratchCardModule.scratchCardRepository
         repository.scratchCard()
@@ -244,8 +248,10 @@ class HomeScreenTest {
         val testInjector = MockInjector(
             cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
             activationCoroutineScope = backgroundScope,
-            versionService = VersionService {
-                ActivationVersion(ScratchCardApi.ACTIVATION_VERSION_THRESHOLD.toString())
+            versionServiceFactory = {
+                VersionService {
+                    ActivationVersion(ScratchCardApi.ACTIVATION_VERSION_THRESHOLD.toString())
+                }
             },
         )
         val repository = testInjector.scratchCardModule.scratchCardRepository

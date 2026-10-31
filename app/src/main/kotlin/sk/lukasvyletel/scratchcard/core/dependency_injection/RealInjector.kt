@@ -5,7 +5,7 @@ import sk.lukasvyletel.scratchcard.core.api.RetrofitClientBuilder
 import sk.lukasvyletel.scratchcard.features.card.api.VersionService
 
 class RealInjector(baseUrl: String) : Injector by SharedInjector(
-    versionService = createVersionService(baseUrl),
+    versionServiceFactory = { createVersionService(baseUrl) },
 )
 
 fun createVersionService(baseUrl: String): VersionService =

@@ -14,14 +14,16 @@ class MockInjector(
     scratchCardCodeGenerator: ScratchCardCodeGenerator = { TEST_SCRATCH_CODE },
     cpuBoundCoroutineDispatcher: CoroutineDispatcher = Dispatchers.Default,
     activationCoroutineScope: CoroutineScope = CoroutineScope(cpuBoundCoroutineDispatcher),
-    versionService: VersionService = VersionService {
-        ActivationVersion((ScratchCardApi.ACTIVATION_VERSION_THRESHOLD + 1).toString())
+    versionServiceFactory: () -> VersionService = {
+        VersionService {
+            ActivationVersion((ScratchCardApi.ACTIVATION_VERSION_THRESHOLD + 1).toString())
+        }
     },
 ) : Injector by SharedInjector(
     scratchCardCodeGenerator = scratchCardCodeGenerator,
     cpuBoundCoroutineDispatcher = cpuBoundCoroutineDispatcher,
     activationCoroutineScope = activationCoroutineScope,
-    versionService = versionService,
+    versionServiceFactory = versionServiceFactory,
 ) {
     companion object {
         const val TEST_SCRATCH_CODE = "c533829f-cd4a-433d-9886-05f9b613db57"

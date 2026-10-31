@@ -145,8 +145,10 @@ class ActivateCardScreenTest {
         val injector = MockInjector(
             cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
             activationCoroutineScope = backgroundScope,
-            versionService = VersionService {
-                ActivationVersion(ScratchCardApi.ACTIVATION_VERSION_THRESHOLD.toString())
+            versionServiceFactory = {
+                VersionService {
+                    ActivationVersion(ScratchCardApi.ACTIVATION_VERSION_THRESHOLD.toString())
+                }
             },
         )
         val repository = injector.scratchCardModule.scratchCardRepository
@@ -173,7 +175,9 @@ class ActivateCardScreenTest {
         val injector = MockInjector(
             cpuBoundCoroutineDispatcher = StandardTestDispatcher(testScheduler),
             activationCoroutineScope = backgroundScope,
-            versionService = VersionService { throw IllegalStateException("request failed") },
+            versionServiceFactory = {
+                VersionService { throw IllegalStateException("request failed") }
+            },
         )
         injector.scratchCardModule.scratchCardRepository.scratchCard()
         advanceUntilIdle()

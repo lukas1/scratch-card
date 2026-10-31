@@ -17,7 +17,7 @@ class ScratchCardTestApplication : ScratchCardApplication() {
     override fun createInjector(): Injector {
         runBlocking(Dispatchers.IO) { mockWebServer.start() }
         return SharedInjector(
-            versionService = createVersionService(mockWebServer.url("/").toString()),
+            versionServiceFactory = { createVersionService(mockWebServer.url("/").toString()) },
             scratchCardCodeGenerator = { "instrumented-test-code" },
             delayFunction = { duration -> scratchDelay(duration) },
         )

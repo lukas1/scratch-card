@@ -10,7 +10,7 @@ class SharedInjectorTest {
     @Test
     fun `GIVEN default code generation WHEN card is scratched THEN a code is created`() = runTest {
         val injector = SharedInjector(
-            versionService = { ActivationVersion("287028") },
+            versionServiceFactory = { { ActivationVersion("287028") } },
             delayFunction = {},
         )
         val repository = injector.scratchCardModule.scratchCardRepository
