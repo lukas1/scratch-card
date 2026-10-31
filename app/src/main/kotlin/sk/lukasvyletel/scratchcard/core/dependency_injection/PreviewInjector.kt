@@ -3,12 +3,15 @@ package sk.lukasvyletel.scratchcard.core.dependency_injection
 import sk.lukasvyletel.scratchcard.core.annotations.ExcludeFromCoverage
 import sk.lukasvyletel.scratchcard.features.card.api.ActivationVersion
 import sk.lukasvyletel.scratchcard.features.card.api.ScratchCardApi
+import sk.lukasvyletel.scratchcard.features.card.dependency_injection.ScratchCardBindings
 
 @ExcludeFromCoverage
-class PreviewInjector : Injector by SharedInjector(
-    versionServiceFactory = {
-        {
-            ActivationVersion((ScratchCardApi.ACTIVATION_VERSION_THRESHOLD + 1).toString())
-        }
-    },
-)
+class PreviewInjector : Injector by SharedInjector(object : Bindings {
+    override fun globalBindings(): GlobalBindings = GlobalBindings()
+
+    override fun scratchCardBindings(): ScratchCardBindings = ScratchCardBindings(
+        versionServiceFactory = {
+            { ActivationVersion((ScratchCardApi.ACTIVATION_VERSION_THRESHOLD + 1).toString()) }
+        },
+    )
+})

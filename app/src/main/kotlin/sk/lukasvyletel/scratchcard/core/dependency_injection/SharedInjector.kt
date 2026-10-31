@@ -1,39 +1,28 @@
 package sk.lukasvyletel.scratchcard.core.dependency_injection
 
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import sk.lukasvyletel.scratchcard.features.card.api.VersionService
 import sk.lukasvyletel.scratchcard.features.activate.dependency_injection.ActivateCardModule
-import sk.lukasvyletel.scratchcard.core.coroutines.DelayFunction
-import sk.lukasvyletel.scratchcard.features.card.api.ScratchCardCodeGenerator
-import sk.lukasvyletel.scratchcard.core.coroutines.coroutineDelay
 import sk.lukasvyletel.scratchcard.features.card.dependency_injection.ScratchCardModule
-import kotlin.uuid.Uuid
 
-class SharedInjector(
-    private val versionServiceFactory: () -> VersionService,
-    scratchCardCodeGenerator: ScratchCardCodeGenerator = { Uuid.random().toString() },
-    delayFunction: DelayFunction = coroutineDelay,
-    cpuBoundCoroutineDispatcher: CoroutineDispatcher = Dispatchers.Default,
-    private val activationCoroutineScope: CoroutineScope = CoroutineScope(
-        SupervisorJob() + Dispatchers.IO,
-    ),
-) : Injector {
-    override val globalModule: GlobalModule by lazy { GlobalModule() }
+class SharedInjector(private val bindings: Bindings) : Injector {
+    private val modules = mutableMapOf<Class<*>, Lazy<Any>>()
 
-    override val scratchCardModule: ScratchCardModule by lazy {
-        ScratchCardModule(
-            scratchCardCodeGenerator = scratchCardCodeGenerator,
-            delayFunction = delayFunction,
-            cpuBoundCoroutineDispatcher = cpuBoundCoroutineDispatcher,
-            activationCoroutineScope = activationCoroutineScope,
-            versionService = versionServiceFactory(),
-        )
-    }
+    override val globalModule: GlobalModule
+        get() = module(GlobalModule::class.java) { GlobalModule() }
 
-    override val activateCardModule: ActivateCardModule by lazy {
-        ActivateCardModule(scratchCardRepository = scratchCardModule.scratchCardRepository)
+    override val scratchCardModule: ScratchCardModule
+        get() = module(ScratchCardModule::class.java) {
+            ScratchCardModule(bindings.globalBindings(), bindings.scratchCardBindings())
+        }
+
+    override val activateCardModule: ActivateCardModule
+        get() = module(ActivateCardModule::class.java) {
+            ActivateCardModule(scratchCardRepository = scratchCardModule.scratchCardRepository)
+        }
+
+    private fun <T : Any> module(type: Class<T>, create: () -> T): T {
+        val cached = synchronized(modules) {
+            modules.getOrPut(type) { lazy { create() } }
+        }
+        return requireNotNull(type.cast(cached.value))
     }
 }

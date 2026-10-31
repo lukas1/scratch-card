@@ -17,6 +17,8 @@ import sk.lukasvyletel.scratchcard.features.card.api.ActivationVersion
 import sk.lukasvyletel.scratchcard.features.card.api.ScratchCardCodeGenerator
 import sk.lukasvyletel.scratchcard.features.card.api.VersionService
 import sk.lukasvyletel.scratchcard.features.card.dependency_injection.ScratchCardModule
+import sk.lukasvyletel.scratchcard.features.card.dependency_injection.ScratchCardBindings
+import sk.lukasvyletel.scratchcard.core.dependency_injection.GlobalBindings
 import sk.lukasvyletel.scratchcard.features.card.model.ActivationError
 import sk.lukasvyletel.scratchcard.features.card.model.ScratchCardState
 import sk.lukasvyletel.scratchcard.features.card.repository.ScratchCardRepository
@@ -31,10 +33,14 @@ class ScratchCardRepositoryTest {
         activationCoroutineScope: CoroutineScope,
         versionService: VersionService = { ActivationVersion("287028") },
     ): ScratchCardRepository = ScratchCardModule(
-        scratchCardCodeGenerator = scratchCardCodeGenerator,
-        cpuBoundCoroutineDispatcher = cpuBoundCoroutineDispatcher,
-        activationCoroutineScope = activationCoroutineScope,
-        versionService = versionService,
+        globalBindings = GlobalBindings(
+            cpuBoundCoroutineDispatcher = cpuBoundCoroutineDispatcher,
+        ),
+        scratchCardBindings = ScratchCardBindings(
+            versionServiceFactory = { versionService },
+            scratchCardCodeGenerator = scratchCardCodeGenerator,
+            activationCoroutineScope = activationCoroutineScope,
+        ),
     ).scratchCardRepository
 
     @Test

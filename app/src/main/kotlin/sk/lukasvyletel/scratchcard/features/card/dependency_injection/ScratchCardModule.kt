@@ -1,35 +1,27 @@
 package sk.lukasvyletel.scratchcard.features.card.dependency_injection
 
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
+import sk.lukasvyletel.scratchcard.core.dependency_injection.GlobalBindings
 import sk.lukasvyletel.scratchcard.features.card.api.CardScratcher
-import sk.lukasvyletel.scratchcard.features.card.api.VersionService
 import sk.lukasvyletel.scratchcard.features.card.api.ScratchCardApi
-import sk.lukasvyletel.scratchcard.features.card.api.ScratchCardCodeGenerator
-import sk.lukasvyletel.scratchcard.core.coroutines.DelayFunction
 import sk.lukasvyletel.scratchcard.features.card.repository.ScratchCardRepository
-import sk.lukasvyletel.scratchcard.core.coroutines.coroutineDelay
 
 class ScratchCardModule(
-    scratchCardCodeGenerator: ScratchCardCodeGenerator,
-    delayFunction: DelayFunction = coroutineDelay,
-    cpuBoundCoroutineDispatcher: CoroutineDispatcher,
-    activationCoroutineScope: CoroutineScope,
-    versionService: VersionService,
+    private val globalBindings: GlobalBindings,
+    private val scratchCardBindings: ScratchCardBindings,
 ) {
     private val cardScratcher: CardScratcher by lazy {
         CardScratcher(
-            scratchCardCodeGenerator = scratchCardCodeGenerator,
-            delayFunction = delayFunction,
-            cpuBoundCoroutineDispatcher = cpuBoundCoroutineDispatcher,
+            scratchCardCodeGenerator = scratchCardBindings.scratchCardCodeGenerator,
+            delayFunction = globalBindings.delayFunction,
+            cpuBoundCoroutineDispatcher = globalBindings.cpuBoundCoroutineDispatcher,
         )
     }
     private val scratchCardApi: ScratchCardApi by lazy {
-        ScratchCardApi(versionService)
+        ScratchCardApi(scratchCardBindings.versionService())
     }
     val scratchCardRepository: ScratchCardRepository by lazy {
         ScratchCardRepository(
-            activationCoroutineScope = activationCoroutineScope,
+            activationCoroutineScope = scratchCardBindings.activationCoroutineScope,
             scratchCardApi = scratchCardApi,
             cardScratcher = cardScratcher,
         )
