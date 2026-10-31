@@ -24,6 +24,7 @@ kover {
             excludes {
                 annotatedBy("sk.lukasvyletel.scratchcard.core.annotations.ExcludeFromCoverage")
                 classes("*Preview*")
+                classes("*RealInjector*")
             }
         }
         variant("mockDebug") {
@@ -42,6 +43,7 @@ kover {
                 excludes {
                     annotatedBy("sk.lukasvyletel.scratchcard.core.annotations.ExcludeFromCoverage")
                     classes("*Preview*")
+                    classes("*RealInjector*")
                 }
             }
             verify {
