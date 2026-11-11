@@ -1,5 +1,5 @@
 [versions]
-android-gradle-plugin = "9.5.0"
+android-gradle-plugin = "9.5.1"
 junit = "4.13.2"
 androidx-test-junit = "1.3.0"
 androidx-test-runner = "1.7.0"
@@ -15,7 +15,7 @@ navigation3 = "1.2.0"
 kotlinx-coroutines = "1.11.0"
 robolectric = "4.17"
 androidx-test-core = "1.7.0"
-mockk = "1.14.11"
+mockk = "1.14.12"
 kover = "0.9.11"
 detekt = "1.23.8"
 
